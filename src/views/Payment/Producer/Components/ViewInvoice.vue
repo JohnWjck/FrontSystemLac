@@ -1,5 +1,12 @@
 <template>
   <section class="invoice-preview-wrapper">
+    <!-- Watermark Logo Background SIEMPRE visible -->
+    <div class="invoice-watermark-bg only-print">
+      <img
+        src="/logoMV.png"
+        alt="Logo Marca de Agua"
+      >
+    </div>
 
     <!-- Alert: No item found -->
     <b-alert
@@ -25,7 +32,6 @@
       v-if="invoiceData"
       class="invoice-preview justify-content-center"
     >
-
       <!-- Col: Left (Invoice Container) -->
       <b-col
         cols="12"
@@ -38,29 +44,26 @@
         >
           <!-- Header -->
           <b-card-body class="invoice-padding pb-0">
-
             <div class="d-flex justify-content-between flex-md-row flex-column invoice-spacing mt-0">
-
               <div>
                 <div class="logo-wrapper mb-1">
                   <logo />
                   <h3 class="ml-5 text-info invoice-logo">
-                    SysLact
+                    DISTRIBUIDORA E INVERSIONES LACTEOS
                   </h3>
                 </div>
                 <b-card-text class="mb-25 ml-4">
-                  <strong>Rif-xxxx-xxx-xx-xx</strong>
+                  <strong>Rif-J-41237828-7</strong>
                 </b-card-text>
                 <b-card-text class="mb-25 ml-3">
-                  <strong>Tlf-xxxx-xxx-xx-xx</strong>
+                  <strong>Tlf-0416-196-70-38</strong>
                 </b-card-text>
               </div>
-
               <!-- Header: Right Content -->
               <div class="mt-md-0 mt-2 float-right fechaIzquierda">
                 <h4 class="invoice-title">
                   N°
-                  <span class="invoice-number">#{{ invoiceData.id }}</span>
+                  <span class="invoice-number">#{{ invoiceNumber }}</span>
                 </h4>
                 <div class="invoice-date-wrapper">
                   <p class="invoice-date-title">
@@ -85,20 +88,22 @@
 
           <!-- Invoice Client & Payment Details -->
           <b-card-body
-            v-if="invoiceData.id"
+            v-if="invoiceData.id && invoiceData.producer && invoiceData.producer[0]"
             class="invoice-padding pt-0"
           >
-            <b-row class="invoice-spacing">
-
-              <!-- Col: Invoice To -->
-              <b-table-lite
-                v-if="loaded"
-                responsive
-                :items="invoiceData.producer"
-                :fields="producer"
-                class="mb-2"
-              />
-            </b-row>
+            <b-card class="mb-1 bg-light border-info align-items-center">
+              <b-card-title class="text-info mb-1" />
+              <b-row class="align-items-center">
+                <b-col>
+                  <strong>Productor:</strong>
+                  {{ invoiceData.producer[0].dni }} -
+                  {{ invoiceData.producer[0].name }}
+                  <strong>TLF:</strong>  {{ invoiceData.producer[0].phone }}
+                  <strong>Finca:</strong> {{ invoiceData.producer[0].farm }}
+                  <strong>Dirección:</strong> {{ invoiceData.producer[0].address }}
+                </b-col>
+              </b-row>
+            </b-card>
           </b-card-body>
 
           <!-- Invoice Description: Table -->
@@ -152,7 +157,7 @@
             <!-- Note -->
             <b-card-body class="invoice-padding p-0 m-0 pb-2 text-center">
               <span class="font-weight-bold text-info m-0 p-0">
-                Leche de primera calidad, para un sabor inigualable.
+                Productos de primera calidad, para un sabor inigualable.
               </span>
               <hr class="invoice-spacing p-0 m-1">
               <span class="m-1 pt-0">
@@ -173,7 +178,6 @@
           class="position-fixed"
           style="width: 18%;"
         >
-
           <!-- Button: Print -->
           <div class="mb-1 text-center">
             <b-badge
@@ -192,7 +196,6 @@
           >
             Imprimir
           </b-button>
-
           <!-- Button: Send Invoice -->
           <b-button
             v-if="invoiceData.status === 'Pendiente'"
@@ -276,27 +279,22 @@ export default {
         {
           key: 'dni',
           label: 'Identificación',
-          sortable: true,
         },
         {
           key: 'name',
           label: 'Productor',
-          sortable: true,
         },
         {
           key: 'phone',
           label: 'Teléfono',
-          sortable: true,
         },
         {
           key: 'farm',
           label: 'Finca',
-          sortable: true,
         },
         {
           key: 'address',
           label: 'Dirección',
-          sortable: true,
         },
       ],
       loaded: false,
@@ -307,6 +305,11 @@ export default {
       items: state => state.payment.invoice,
       currency: state => state.currency.items,
     }),
+    invoiceNumber() {
+      // Serializa el id a 8 dígitos con ceros a la izquierda
+      if (!this.invoiceData || !this.invoiceData.id) return ''
+      return String(this.invoiceData.id).padStart(8, '0')
+    },
   },
   mounted() {
     this.getItems()
@@ -380,94 +383,132 @@ export default {
 }
 </script>
 
-      <style lang="scss" scoped>
-        @import "~@core/scss/base/pages/app-invoice.scss";
-        </style>
+<style lang="scss" scoped>
+    @import "~@core/scss/base/pages/app-invoice.scss";
 
-      <style lang="scss">
-        @media print {
+// Oculta el watermark en pantalla, solo visible al imprimir
+.only-print {
+  display: none;
+}
 
-          // Global Styles
-          body {
-            background-color: transparent !important;
-          }
-          nav.header-navbar {
-            display: none;
-          }
-          .main-menu {
-            display: none;
-          }
-          .header-navbar-shadow {
-            display: none !important;
-          }
-          .content.app-content {
-            margin-left: 0;
-            padding-top: 2rem !important;
-          }
-          footer.footer {
-            display: none;
-          }
-          .card {
-            background-color: transparent;
-            box-shadow: none;
-          }
-          .customizer-toggle {
-            display: none !important;
-          }
+@media print {
+  .only-print {
+    display: flex !important;
+  }
+}
 
-          // Invoice Specific Styles
-          .invoice-preview-wrapper {
-            .row.invoice-preview {
-              .col-md-8 {
-                max-width: 100%;
-                flex-grow: 1;
-              }
+// Asegura que el contenido esté por encima del watermark
+.invoice-preview-wrapper {
+  position: relative;
+  z-index: 1;
+}
+</style>
 
-              .invoice-preview-card {
-                .card-body:nth-of-type(2) {
-                  .row {
-                      > .col-12 {
-                      max-width: 50% !important;
-                    }
+<style lang="scss">
+          @media print {
 
-                    .col-12:nth-child(2) {
-                      display: flex;
-                      align-items: flex-start;
-                      justify-content: flex-end;
-                      margin-top: 0 !important;
+            // Global Styles
+            body {
+              background-color: transparent !important;
+            }
+            nav.header-navbar {
+              display: none;
+            }
+            .main-menu {
+              display: none;
+            }
+            .header-navbar-shadow {
+              display: none !important;
+            }
+            .content.app-content {
+              margin-left: 0;
+              padding-top: 2rem !important;
+            }
+            footer.footer {
+              display: none;
+            }
+            .card {
+              background-color: transparent;
+              box-shadow: none;
+            }
+            .customizer-toggle {
+              display: none !important;
+            }
+
+            // Invoice Specific Styles
+            .invoice-preview-wrapper {
+              .row.invoice-preview {
+                .col-md-8 {
+                  max-width: 100%;
+                  flex-grow: 1;
+                }
+
+                .invoice-preview-card {
+                  .card-body:nth-of-type(2) {
+                    .row {
+                        > .col-12 {
+                        max-width: 50% !important;
+                      }
+
+                      .col-12:nth-child(2) {
+                        display: flex;
+                        align-items: flex-start;
+                        justify-content: flex-end;
+                        margin-top: 0 !important;
+                      }
                     }
                   }
                 }
               }
-            }
 
-            // Action Right Col
-            .invoice-actions {
-              display: none;
+              // Action Right Col
+              .invoice-actions {
+                display: none;
+              }
             }
+            // Watermark background logo styles para impresión
+            .invoice-watermark-bg {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100vw !important;
+              height: 100vh !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              opacity: 0.08 !important;
+              z-index: 0 !important;
+              pointer-events: none !important;
+            }
+            .invoice-watermark-bg img {
+              max-width: 90vw !important;
+              max-height: 95vh !important;
+              filter: grayscale(100%) contrast(110%);
+              user-select: none;
+            }
+            // El resto de estilos de impresión ya están definidos arriba
+          }
+</style>
+
+<style scoped>
+        @media print {
+          @page {
+            width: 100%;
+            max-width: none;
+          }
+          .invoice-preview-wrapper {
+            font-size: 14pt;
+            size: letter;
+          }
+          .targetaDePie{
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+          }
+          .fechaIzquierda {
+           position: absolute;
+           padding-left: 75%;
+           text-align: right;
           }
         }
-        </style>
-
-      <style scoped>
-      @media print {
-        @page {
-          width: 100%;
-          max-width: none;
-        }
-        .invoice-preview-wrapper {
-          font-size: 14pt;
-          size: letter;
-        }
-        .targetaDePie{
-          position: fixed;
-          bottom: 0;
-          width: 100%;
-        }
-        .fechaIzquierda {
-         position: absolute;
-         padding-left: 75%;
-         text-align: right;
-        }
-      }
-      </style>
+</style>

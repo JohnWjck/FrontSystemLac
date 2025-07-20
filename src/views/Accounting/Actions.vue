@@ -5,7 +5,7 @@
     >
       <h2>Bienvenidos!</h2>
       <b-card-text class="font-small-3">
-        Sistema de control lacteo
+        Sistema de Gestión de Distribuidora e Inversiones Lácteos
       </b-card-text>
       <div class="mb-75 mt-2 pt-50">
         <b-button

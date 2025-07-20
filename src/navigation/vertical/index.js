@@ -103,7 +103,7 @@ export default [
         route: 'cheeseLoad',
       },
       {
-        title: 'Notas de Entrega',
+        title: 'Ventas de Quesos',
         route: 'deliveryNotes',
       },
     ],

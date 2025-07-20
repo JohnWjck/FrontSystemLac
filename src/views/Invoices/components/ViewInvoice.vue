@@ -1,5 +1,12 @@
 <template>
   <section class="invoice-preview-wrapper">
+    <!-- Watermark Logo Background SIEMPRE visible -->
+    <div class="invoice-watermark-bg only-print">
+      <img
+        src="/logoMV.png"
+        alt="Logo Marca de Agua"
+      >
+    </div>
 
     <!-- Alert: No item found -->
     <b-alert
@@ -45,14 +52,14 @@
                 <div class="logo-wrapper mb-1">
                   <logo />
                   <h3 class="ml-5 text-info invoice-logo">
-                    SysLact
+                    DISTRIBUIDORA E INVERSIONES LACTEOS
                   </h3>
                 </div>
                 <b-card-text class="mb-25 ml-4">
-                  <strong>Rif-J-xxxx-xxx-xx-xx</strong>
+                  <strong>Rif-J-41237828-7</strong>
                 </b-card-text>
                 <b-card-text class="mb-25 ml-3">
-                  <strong>Tlf-xxxx-xxx-xx-xx</strong>
+                  <strong>Tlf-0416-196-70-38</strong>
                 </b-card-text>
               </div>
 
@@ -60,7 +67,7 @@
               <div class="mt-md-0 mt-2 float-right fechaIzquierda">
                 <h4 class="invoice-title">
                   N°
-                  <span class="invoice-number">#{{ invoiceData.id }}</span>
+                  <span class="invoice-number">#{{ invoiceNumber }}</span>
                 </h4>
                 <div class="invoice-date-wrapper">
                   <p class="invoice-date-title">
@@ -76,26 +83,29 @@
 
           <!-- Spacer -->
           <h3 class="text-center text-info">
-            <strong>Nota de Entrega</strong>
+            <strong>Orden de Compra</strong>
           </h3>
           <hr class="invoice-spacing">
 
           <!-- Invoice Client & Payment Details -->
           <b-card-body
-            v-if="invoiceData.id"
+            v-if="invoiceData.id && invoiceData.customer && invoiceData.customer[0]"
             class="invoice-padding pt-0"
           >
-            <b-row class="invoice-spacing">
-
-              <!-- Col: Invoice To -->
-              <b-table-lite
-                v-if="loaded"
-                responsive
-                :items="invoiceData.customer"
-                :fields="customer"
-                class="mb-2"
-              />
-            </b-row>
+            <b-card class="mb-1 bg-light border-info align-items-center">
+              <b-card-title class="text-info mb-1" />
+              <b-row class="align-items-center">
+                <b-col
+                  class="ßmb-md-0"
+                >
+                  <strong>Cliente:</strong>
+                  {{ invoiceData.customer[0].dni }} -
+                  {{ invoiceData.customer[0].name }}
+                  <strong>TLF:</strong>  {{ invoiceData.customer[0].phone }}
+                  <strong>Dirección:</strong> {{ invoiceData.customer[0].address }}
+                </b-col>
+              </b-row>
+            </b-card>
           </b-card-body>
 
           <!-- Invoice Description: Table -->
@@ -146,7 +156,7 @@
             <!-- Note -->
             <b-card-body class="invoice-padding p-0 m-0 pb-2 text-center">
               <span class="font-weight-bold text-info m-0 p-0">
-                Leche de primera calidad, para un sabor inigualable.
+                Productos de primera calidad, para un sabor inigualable.
               </span>
               <hr class="invoice-spacing p-0 m-1">
               <span class="m-1 pt-0">
@@ -155,6 +165,7 @@
             </b-card-body>
           </div>
         </b-card>
+
       </b-col>
       <!-- Right Col: Card -->
       <b-col
@@ -294,6 +305,11 @@ export default {
       items: state => state.invoice.invoice,
       currency: state => state.currency.items,
     }),
+    invoiceNumber() {
+      // Serializa el id a 8 dígitos con ceros a la izquierda
+      if (!this.invoiceData || !this.invoiceData.id) return ''
+      return String(this.invoiceData.id).padStart(8, '0')
+    },
   },
   mounted() {
     this.getItems()
@@ -354,6 +370,23 @@ export default {
 
 <style lang="scss" scoped>
     @import "~@core/scss/base/pages/app-invoice.scss";
+
+// Oculta el watermark en pantalla, solo visible al imprimir
+.only-print {
+  display: none;
+}
+
+@media print {
+  .only-print {
+    display: flex !important;
+  }
+}
+
+// Asegura que el contenido esté por encima del watermark
+.invoice-preview-wrapper {
+  position: relative;
+  z-index: 1;
+}
 </style>
 
 <style lang="scss">
@@ -418,6 +451,27 @@ export default {
                 display: none;
               }
             }
+            // Watermark background logo styles para impresión
+            .invoice-watermark-bg {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100vw !important;
+              height: 100vh !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              opacity: 0.08 !important;
+              z-index: 0 !important;
+              pointer-events: none !important;
+            }
+            .invoice-watermark-bg img {
+              max-width: 90vw !important;
+              max-height: 95vh !important;
+              filter: grayscale(100%) contrast(110%);
+              user-select: none;
+            }
+            // El resto de estilos de impresión ya están definidos arriba
           }
 </style>
 

@@ -26,7 +26,7 @@
           class="text-center nombreTabla"
         >
           <h1 class="font-weight-bold text-info">
-            Notas de Entrega
+            Ordenes de Ventas
             <feather-icon
               icon="TruckIcon"
               size="1.1x"
@@ -74,7 +74,7 @@
                 :to="{ name: 'invoice-customer', params: { id: data.item.id }}"
                 class="font-weight-bold text-info"
               >
-                #{{ data.value }}
+                #{{ String(data.value).padStart(8, '0') }}
               </b-link>
             </template>
             <template #cell(kilograms)="data">

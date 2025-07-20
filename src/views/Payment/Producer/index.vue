@@ -75,7 +75,7 @@
                 :to="{ name: 'invoice-producer', params: { id: data.item.id }}"
                 class="font-weight-bold text-info"
               >
-                #{{ data.value }}
+                #{{ String(data.value).padStart(8, '0') }}
               </b-link>
             </template>
             <template #cell(liters)="data">

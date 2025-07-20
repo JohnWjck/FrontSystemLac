@@ -62,7 +62,7 @@
                 :to="data.item.payable_type === 'App\\Models\\Producer' ? { name: 'invoice-producer', params: { id: data.item.id }} : { name: 'invoice-carrier', params: { id: data.item.id }}"
                 class="font-weight-bold text-info"
               >
-                #{{ data.value }}
+                #{{ String(data.value).padStart(8, '0') }}
               </b-link>
             </template>
             <template #cell(payable_type)="data">
