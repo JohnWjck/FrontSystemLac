@@ -47,7 +47,7 @@
     </b-sidebar>
     <b-sidebar
       v-model="openDown"
-      width="35%"
+      width="40%"
       bg-variant="white"
       right
       backdrop

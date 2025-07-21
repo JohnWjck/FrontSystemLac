@@ -23,7 +23,7 @@
           </b-form-group>
         </b-col>
         <!-- Kilogramos -->
-        <b-col cols="12">
+        <b-col cols="6">
           <b-form-group
             v-if="!item"
             label="Kilogramos"
@@ -33,6 +33,24 @@
               v-model="cheese.kilograms"
               required
               type="number"
+            />
+          </b-form-group>
+        </b-col>
+        <!-- Precio -->
+        <b-col :cols="item ? 12 : 6">
+          <b-form-group
+            label="Variable de Precio"
+            description="Ingresar el Precio"
+          >
+            <v-select
+              v-model="cheese.currency_id"
+              :options="currencies"
+              required
+              item-value="id"
+              label="name"
+              :reduce="currency => currency.id"
+              :clearable="false"
+              placeholder="Selecciona una variable"
             />
           </b-form-group>
         </b-col>
@@ -61,11 +79,14 @@ import {
   BFormInput,
   BForm,
 } from 'bootstrap-vue'
+import { mapState } from 'vuex'
+import vSelect from 'vue-select'
 
 const cheeseData = {
   id: null,
   name: null,
   kilograms: null,
+  currency_id: null,
 }
 
 export default {
@@ -76,6 +97,7 @@ export default {
     BRow,
     BFormGroup,
     BCol,
+    vSelect,
   },
   props: {
     item: {
@@ -88,7 +110,11 @@ export default {
       cheese: { ...cheeseData },
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      currencies: state => state.currency.items,
+    }),
+  },
   watch: {
     item: {
       handler(val) {
@@ -101,7 +127,13 @@ export default {
       deep: true,
     },
   },
+  mounted() {
+    this.getItems()
+  },
   methods: {
+    getItems() {
+      this.$store.dispatch('currency/get')
+    },
     async newCheese() {
       try {
         const res = await this.$store.dispatch('cheese/saveCheese', {
@@ -116,3 +148,7 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+  @import '@core/scss/vue/libs/vue-select.scss';
+  @import '@core/scss/vue/libs/vue-flatpicker.scss';
+</style>

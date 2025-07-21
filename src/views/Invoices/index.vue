@@ -140,7 +140,7 @@
     </b-card>
     <b-sidebar
       v-model="open"
-      width="35%"
+      width="40%"
       bg-variant="white"
       right
       backdrop

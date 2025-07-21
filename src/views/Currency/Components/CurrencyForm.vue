@@ -18,7 +18,6 @@
             <b-form-input
               v-model="currency.name"
               required
-              disabled
               type="text"
             />
           </b-form-group>

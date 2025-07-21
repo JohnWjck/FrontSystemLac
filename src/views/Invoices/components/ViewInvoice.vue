@@ -67,7 +67,7 @@
               <div class="mt-md-0 mt-2 float-right fechaIzquierda">
                 <h4 class="invoice-title">
                   N°
-                  <span class="invoice-number">#{{ invoiceNumber }}</span>
+                  <span class="invoice-number">#{{ invoiceData.id }}</span>
                 </h4>
                 <div class="invoice-date-wrapper">
                   <p class="invoice-date-title">
@@ -96,7 +96,7 @@
               <b-card-title class="text-info mb-1" />
               <b-row class="align-items-center">
                 <b-col
-                  class="ßmb-md-0"
+                  class="mb-1 mb-md-0"
                 >
                   <strong>Cliente:</strong>
                   {{ invoiceData.customer[0].dni }} -
@@ -305,11 +305,6 @@ export default {
       items: state => state.invoice.invoice,
       currency: state => state.currency.items,
     }),
-    invoiceNumber() {
-      // Serializa el id a 8 dígitos con ceros a la izquierda
-      if (!this.invoiceData || !this.invoiceData.id) return ''
-      return String(this.invoiceData.id).padStart(8, '0')
-    },
   },
   mounted() {
     this.getItems()

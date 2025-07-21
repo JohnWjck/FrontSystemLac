@@ -38,7 +38,7 @@
           cols="2"
           md="2"
         >
-          <!-- <b-button
+          <b-button
             v-b-tooltip.hover.top="'Cargo de leche'"
             variant="info"
             class="float-right px-1"
@@ -48,7 +48,7 @@
               icon="PlusIcon"
               size="1.1x"
             />
-          </b-button> -->
+          </b-button>
         </b-col>
       </b-row>
       <b-row>
@@ -143,7 +143,7 @@
 <script>
 import {
   BCard,
-  // BButton,
+  BButton,
   BTable,
   BSidebar,
   BFormGroup,
@@ -163,7 +163,7 @@ export default {
   components: {
 
     BCard,
-    // BButton,
+    BButton,
     BTable,
     BSidebar,
     BFormGroup,
@@ -198,6 +198,11 @@ export default {
         {
           key: 'kilograms',
           label: 'Kilogramos en existencia',
+          sortable: true,
+        },
+        {
+          key: 'currency.price',
+          label: 'Precio $',
           sortable: true,
         },
         {

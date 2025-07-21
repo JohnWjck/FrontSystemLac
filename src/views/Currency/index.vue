@@ -26,7 +26,7 @@
           class="text-center nombreTabla"
         >
           <h1 class="font-weight-bold text-info">
-            Variables de Precio
+            Precios del Sistema
             <feather-icon
               icon="DollarSignIcon"
               size="1.1x"
@@ -38,7 +38,7 @@
           cols="2"
           md="2"
         >
-          <!-- <b-button
+          <b-button
             v-b-tooltip.hover.top="'Crear nuevo Rutero'"
             variant="info"
             class="float-right px-1"
@@ -48,7 +48,7 @@
               icon="PlusIcon"
               size="1.1x"
             />
-          </b-button> -->
+          </b-button>
         </b-col>
       </b-row>
       <b-row>
@@ -80,7 +80,7 @@
             </template>
             <template #cell(price)="data">
               <div class="font-weight-bold text-primary">
-                {{ data.item.name === '$' ? `Bs ${data.value}` : `$ ${data.value}` }}
+                {{ data.item.id === 1 ? `Bs ${data.value}` : `$ ${data.value}` }}
               </div>
             </template>
             <template #cell(actions)="data">
@@ -139,7 +139,7 @@
 <script>
 import {
   BCard,
-  // BButton,
+  BButton,
   BTable,
   BSidebar,
   BFormGroup,
@@ -160,7 +160,7 @@ export default {
   components: {
 
     BCard,
-    // BButton,
+    BButton,
     BTable,
     BSidebar,
     BFormGroup,
