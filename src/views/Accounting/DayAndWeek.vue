@@ -8,14 +8,20 @@
         </b-card-title>
       </div>
     </b-card-header>
-
     <b-card-body>
-      <vue-apex-charts
-        type="bar"
-        height="350"
-        :options="barChart.chartOptions"
-        :series="barChart.series"
-      />
+      <template v-if="days && days.length > 0">
+        <vue-apex-charts
+          type="bar"
+          height="350"
+          :options="barChart.chartOptions"
+          :series="barChart.series"
+        />
+      </template>
+      <template v-else>
+        <div class="text-center py-4">
+          <span>Cargando datos...</span>
+        </div>
+      </template>
     </b-card-body>
   </b-card>
 </template>
@@ -35,8 +41,8 @@ export default {
     BCardTitle,
   },
   props: {
-    store: {
-      type: Object,
+    days: {
+      type: Array,
       required: true,
     },
   },
@@ -77,15 +83,16 @@ export default {
     }
   },
   watch: {
-    store: {
+    days: {
       immediate: true,
-      handler(newStore) {
-        this.updateChartData(newStore.days)
+      handler(newDays) {
+        this.updateChartData(newDays)
       },
     },
   },
   methods: {
     updateChartData(days) {
+      if (!Array.isArray(days)) return
       const seriesData = days.map(day => parseFloat(day.liters))
       const categories = days.map(day => {
         const date = new Date(day.date)

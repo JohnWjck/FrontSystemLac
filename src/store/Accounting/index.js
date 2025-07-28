@@ -39,7 +39,8 @@ export default {
     async getTopProducers({ commit }) {
       try {
         await API.get('accounting/top-producers').then(response => {
-          commit('SET_PRODUCERS', response.data)
+          // Si la respuesta es { producers: [...] }, guarda solo el array
+          commit('SET_PRODUCERS', response.data.producers || response.data)
         })
       } catch (error) {
         console.log(error)
@@ -49,7 +50,8 @@ export default {
     async getTopCarriers({ commit }) {
       try {
         await API.get('accounting/top-carriers').then(response => {
-          commit('SET_CARRIER', response.data)
+          // Si la respuesta es { carriers: [...] }, guarda solo el array
+          commit('SET_CARRIER', response.data.carriers || response.data)
         })
       } catch (error) {
         console.log(error)
@@ -99,7 +101,8 @@ export default {
     async getMilkPerDayByWeek({ commit }) {
       try {
         await API.get('accounting/milk-per-day-by-week').then(response => {
-          commit('SET_MILK_PER_DAY_BY_WEEK', response.data)
+          // Guardar solo el array de días, no el objeto completo
+          commit('SET_MILK_PER_DAY_BY_WEEK', response.data.days)
         })
       } catch (error) {
         console.log(error)

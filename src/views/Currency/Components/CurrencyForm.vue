@@ -10,7 +10,7 @@
             Nueva Variable
           </h2>
         </b-col>
-        <b-col cols="12">
+        <b-col cols="6">
           <b-form-group
             label="Nombre de la variable"
             description="Ingresar el Nombre"
@@ -23,7 +23,7 @@
           </b-form-group>
         </b-col>
         <!-- precio -->
-        <b-col cols="12">
+        <b-col cols="6">
           <b-form-group
             label="Precio"
             description="Ingresar el Precio"

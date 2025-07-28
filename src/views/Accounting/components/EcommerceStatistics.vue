@@ -17,11 +17,20 @@
           :class="item.customClass"
         >
           <b-media no-body>
-            <b-media-aside
-
-              class="mr-2"
-            >
+            <b-media-aside class="mr-2">
               <b-avatar
+                v-if="item.tooltip"
+                v-b-tooltip.hover.top.html="item.tooltip"
+                :variant="item.color"
+                size="48"
+              >
+                <feather-icon
+                  size="24"
+                  :icon="item.icon"
+                />
+              </b-avatar>
+              <b-avatar
+                v-else
                 size="48"
                 :variant="item.color"
               >
@@ -36,7 +45,13 @@
                 {{ item.title }}
               </h4>
               <b-card-text class="font-small-3 mb-0">
-                {{ item.subtitle }}
+                <span
+                  v-if="item.tooltip"
+                  v-b-tooltip.hover.top.html="item.tooltip"
+                >
+                  {{ item.subtitle }}
+                </span>
+                <span v-else>{{ item.subtitle }}</span>
               </b-card-text>
             </b-media-body>
           </b-media>

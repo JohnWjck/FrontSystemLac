@@ -19,8 +19,15 @@
       </li>
     </ul>
 
-    <!-- Left Col -->
-    <div class="bookmark-wrapper align-items-center flex-grow-1 d-none d-lg-flex" />
+    <!-- Left Col: Tasa del día -->
+    <div class="bookmark-wrapper align-items-center flex-grow-1 d-none d-lg-flex">
+      <div
+        class="text-white font-weight-bold"
+        style="font-size: 1.1rem;"
+      >
+        Tasa del día: <span class="text-success">{{ currencyToday ? currencyToday.price : 'Cargando...' }}</span> Bs
+      </div>
+    </div>
 
     <b-navbar-nav class="nav align-items-center ml-auto">
       <b-nav-item-dropdown
@@ -31,7 +38,7 @@
         <template #button-content>
           <div class="d-sm-flex d-none user-nav text-white">
             <p class="user-name font-weight-bolder mb-0">
-              {{ user.name }}
+              {{ user && user.name ? user.name : '' }}
             </p>
             <span class="user-status">Admin</span>
           </div>
@@ -86,14 +93,22 @@ export default {
   computed: {
     ...mapState({
       user: state => state.auth.user,
+      currencies: state => state.currency.items,
     }),
+    currencyToday() {
+      return this.currencies.find(item => item.id === 1)
+    },
   },
   mounted() {
     this.getItems()
+    this.getCurrencies()
   },
   methods: {
     getItems() {
       this.$store.dispatch('user/get')
+    },
+    getCurrencies() {
+      this.$store.dispatch('currency/get')
     },
     async logout() {
       await this.$store.dispatch('auth/logout')

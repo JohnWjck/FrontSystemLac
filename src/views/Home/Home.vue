@@ -19,7 +19,7 @@
         cols="12"
         md="12"
       >
-        <DayAndWeek :store="milkPerDayByWeek" />
+        <DayAndWeek :days="milkPerDayByWeek" />
       </b-col>
     </b-row>
     <b-row class="match-height">
@@ -57,7 +57,6 @@ export default {
   components: {
     BRow,
     BCol,
-
     Actions,
     TopProducer,
     TopCarrier,
@@ -78,7 +77,20 @@ export default {
       milkWeek: state => state.accounting.milkWeek,
       milkDay: state => state.accounting.milkDay,
       milkPerDayByWeek: state => state.accounting.milkPerDayByWeek,
+      cheeses: state => state.cheese.cheeses,
     }),
+    cheeseTooltip() {
+      if (!this.cheeses || !this.cheeses.length) return 'Sin datos'
+      // Genera una lista HTML ordenada, resaltando en verde si es mayor a 0
+      return `
+        <ul style='margin:0;padding-left:1.2em;'>
+          ${this.cheeses.map(q => {
+    const isPositive = parseFloat(q.kilograms) > 0
+    return `<li>${q.name}: <span style='color:${isPositive ? '#28c76f' : '#ea5455'};font-weight:bold;'>${q.kilograms} </span>kg</li>`
+  }).join('')}
+        </ul>
+      `
+    },
     staticItems() {
       return [
         {
@@ -86,6 +98,8 @@ export default {
           color: 'light-warning',
           title: `${this.kilosCheese.kilos || 0} kg`,
           subtitle: 'Queso en existencia',
+          tooltip: this.cheeseTooltip,
+          tooltipHtml: true,
         },
         {
           icon: 'DatabaseIcon',
@@ -110,6 +124,7 @@ export default {
   },
   mounted() {
     this.getItems()
+    this.$store.dispatch('cheese/getCheeses')
   },
   methods: {
     getItems() {

@@ -5,14 +5,20 @@
         Top 3 Productores con más litros al mes
       </b-card-title>
     </b-card-header>
-
     <b-card-body>
-      <vue-apex-charts
-        type="radialBar"
-        height="400"
-        :options="radialBarChart.chartOptions"
-        :series="radialBarChart.series"
-      />
+      <template v-if="store && store.length > 0">
+        <vue-apex-charts
+          type="radialBar"
+          height="400"
+          :options="radialBarChart.chartOptions"
+          :series="radialBarChart.series"
+        />
+      </template>
+      <template v-else>
+        <div class="text-center py-4">
+          <span>Cargando datos...</span>
+        </div>
+      </template>
     </b-card-body>
   </b-card>
 </template>

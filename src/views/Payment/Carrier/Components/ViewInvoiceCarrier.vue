@@ -101,7 +101,7 @@
             class="invoice-padding pt-0"
           >
             <b-card class="mb-1 bg-light border-info align-items-center">
-              <b-card-title class="text-info mb-1" />
+              <!-- Eliminado <b-card-title> porque no existe en Bootstrap-Vue -->
               <b-row class="align-items-center">
                 <b-col>
                   <strong>Rutero:</strong>
@@ -147,7 +147,7 @@
             </template>
             <template #cell(subTotal)="data">
               <b-card-text class="font-weight-bold mb-25">
-                ${{ (data.item.liters * liters).toFixed(2) }}
+                ${{ (data.item.liters * data.item.price_per_carrier).toFixed(2) }}
               </b-card-text>
             </template>
           </b-table-lite>
