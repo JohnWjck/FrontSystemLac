@@ -26,6 +26,11 @@ export default [
     ],
   },
   {
+    title: 'Empleados',
+    route: 'employees',
+    icon: 'BriefcaseIcon',
+  },
+  {
     title: 'Productores',
     route: 'producers',
     icon: 'ClipboardIcon',

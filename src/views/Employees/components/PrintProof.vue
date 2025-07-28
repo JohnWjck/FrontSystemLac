@@ -1,38 +1,38 @@
 <template>
   <section class="invoice-preview-wrapper">
-    <!-- Watermark Logo - Solo visible al imprimir -->
-    <div class="invoice-watermark-bg only-print">
+    <!-- Watermark Logo Background SIEMPRE visible -->
+    <!-- <div class="invoice-watermark-bg only-print">
       <img
         src="/logoMV.png"
         alt="Logo Marca de Agua"
       >
-    </div>
+    </div> -->
 
-    <!-- Alerta si no se encuentra la factura -->
+    <!-- Alert: No item found -->
     <b-alert
       variant="danger"
-      :show="!invoiceData"
+      :show="invoiceData === undefined"
     >
       <h4 class="alert-heading">
-        Error al cargar la factura
+        Error fetching invoice data
       </h4>
       <div class="alert-body">
-        No se encontró una factura con este ID. Revisa la
+        No invoice found with this invoice id. Check
         <b-link
           class="alert-link"
-          :to="{ name: 'apps-invoice-list' }"
+          :to="{ name: 'apps-invoice-list'}"
         >
-          lista de facturas
-        </b-link>.
+          Invoice List
+        </b-link>
+        for other invoices.
       </div>
     </b-alert>
 
-    <!-- Vista principal cuando hay datos -->
     <b-row
       v-if="invoiceData"
       class="invoice-preview justify-content-center"
     >
-      <!-- Factura (Lado Izquierdo) -->
+      <!-- Col: Left (Invoice Container) -->
       <b-col
         cols="12"
         xl="9"
@@ -42,7 +42,7 @@
           no-body
           class="invoice-preview-card"
         >
-          <!-- Encabezado -->
+          <!-- Header -->
           <b-card-body class="invoice-padding pb-0">
             <div class="d-flex justify-content-between flex-md-row flex-column invoice-spacing mt-0">
               <div>
@@ -62,113 +62,71 @@
                 <b-card-text class="mb-25 ml-2">
                   <strong>Rif-J-41237828-7</strong>
                 </b-card-text>
-                <b-card-text class="mb-25 ml-1">
-                  <strong>Tlf-(0416)-195-70-38</strong>
-                  <br>
-                  <strong>Tlf-(0412)-673-47-76</strong>
-                </b-card-text>
               </div>
               <!-- Header: Right Content -->
               <div class="mt-md-0 mt-2 float-right fechaIzquierda">
-                <h4 class="invoice-title">
-                  N°
-                  <span class="invoice-number">#{{ invoiceNumber }}</span>
-                </h4>
                 <div class="invoice-date-wrapper">
-                  <p class="invoice-date-title">
-                    Fecha:
-                  </p>
-                  <p class="invoice-date">
-                    {{ invoiceData.created_at }}
-                  </p>
+                  <!-- <p class="invoice-date">
+                    {{ new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) }}
+                  </p> -->
                 </div>
               </div>
             </div>
           </b-card-body>
 
-          <!-- Título -->
-          <h3 class="text-center text-info">
-            <strong>Orden de Despacho</strong>
-          </h3>
-          <hr class="invoice-spacing">
+          <!-- Spacer -->
+          <h1 class="text-center text-info">
+            <strong>Constancia de Trabajo</strong>
+          </h1>
+          <hr class="invoice-spacing mb-5">
 
-          <!-- Datos del cliente -->
-          <b-card-body class="invoice-padding pt-0 d-flex justify-content-center align-items-center">
-            <b-card class="bg-light border-info text-center">
-              <b-row class="align-items-center justify-content-center">
-                <b-col class="text-center">
-                  <span>
-                    <strong>Cliente:</strong> {{ invoiceData.customer.dni }} -
-                    {{ invoiceData.customer.name }}
-                  </span>
-                  <span>
-                    <strong>TLF:</strong> {{ invoiceData.customer.phone }}
-                  </span>
-                  <span>
-                    <strong>Dirección:</strong> {{ invoiceData.customer.address }}
-                  </span>
-                </b-col>
-              </b-row>
-            </b-card>
+          <!-- Contenido central: Datos del trabajador -->
+          <b-card-body
+            v-if="employeeData"
+            class="invoice-padding pt-0"
+          >
+            <div
+              class="mb-3"
+              style="text-align: justify;"
+            >
+              <h3 class="font-weight-bold text-dark mb-2 text-center">
+                A QUIEN PUEDA INTERESAR
+              </h3>
+              <p class="mb-2">
+                Quien suscribe, hace constar por medio de la presente que el(la) ciudadano(a) <span class="font-weight-bold">{{ employeeData.name }} {{ employeeData.last_name }}</span>, titular de la cédula de identidad N° <span class="font-weight-bold">{{ employeeData.dni }}</span>, presta sus servicios en nuestra empresa <span class="font-weight-bold">DISTRIBUIDORA E INVERSIONES LACTEOS MV 2016, C.A.</span> desempeñando el cargo de <span class="font-weight-bold">{{ employeeData.position }}</span> en el departamento de <span class="font-weight-bold">{{ employeeData.department }}</span>.
+              </p>
+              <p class="mb-1">
+                El(la) trabajador(a) ingresó a la empresa el día <span class="font-weight-bold">{{ new Date(employeeData.hire_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) }}</span>, devengando actualmente un sueldo mensual de <span class="font-weight-bold">${{ parseFloat(employeeData.salary).toFixed(2) }}</span>.
+              </p>
+              <p class="mb-1">
+                Teléfono de contacto: <span class="font-weight-bold">{{ employeeData.phone }}</span>
+                <span v-if="employeeData.email"> | Correo: <span class="font-weight-bold">{{ employeeData.email }}</span></span>
+              </p>
+              <p class="mb-5">
+                La presente constancia se expide a solicitud de la parte interesada en Sabaneta de Barinas, a los {{ new Date().getDate() }} días del mes de {{ new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) }}, y no constituye una oferta de trabajo ni compromiso laboral distinto al aquí señalado.
+              </p>
+              <div class="mt-5 mb-2 text-center">
+                Atentamente,
+              </div>
+              <div class="firma-zona mt-5 mb-2 text-center">
+                <div
+                  style="margin-bottom: 80px;"
+                >
+                  &nbsp;
+                </div>
+                <div
+                  style="border-top: 1px solid #222; width: 300px; margin: 0 auto;"
+                />
+                <div class="mt-1">
+                  Firma y Sello de la Empresa
+                </div>
+              </div>
+            </div>
           </b-card-body>
-
-          <!-- Tabla de ítems -->
-          <b-table-lite
-            responsive
-            :items="invoiceData.items"
-            :fields="itemFields"
-            class="mb-2 text-center"
-          >
-            <template #cell(created_at)="data">
-              {{ formatDate(data.item.created_at) }}
-            </template>
-            <template #cell(kilograms)="data">
-              {{ parseFloat(data.item.kilograms).toFixed(2) }} Kg
-            </template>
-            <template #cell(unit_price)="data">
-              ${{ parseFloat(data.item.unit_price).toFixed(2) }}
-            </template>
-            <template #cell(subtotal)="data">
-              ${{ parseFloat(data.item.subtotal).toFixed(2) }}
-            </template>
-            <template #cell(cheese.name)="data">
-              {{ data.value }}
-            </template>
-          </b-table-lite>
-
-          <!-- Totales -->
-          <b-col
-            cols="12"
-            class="text-right px-2"
-          >
-            <h5>Total en Kilos: {{ totalKilograms }} Kg</h5>
-            <br>
-            <h5>
-              Factor: {{ invoiceData.tasa ? parseFloat(invoiceData.tasa).toFixed(2) : convercion }} Bs
-            </h5>
-            <h4
-              class="text-success"
-            >
-              {{ invoiceData.status === 'Pagado' ? 'Total Pagado' : 'Total a Pagar' }}:
-              ${{ parseFloat(invoiceData.amount).toFixed(2) }}
-            </h4>
-            <h4
-              class="text-success"
-            >
-              {{ invoiceData.status === 'Pagado' ? 'Total Pagado' : 'Total a Pagar' }}:
-              Bs {{ parseFloat(invoiceData.totalBs).toFixed(2) }}
-            </h4>
-          </b-col>
-
-          <div class="mb-5" />
-
+          <!-- Spacer -->
           <div class="targetaDePie">
-            <hr class="invoice-spacing">
             <!-- Note -->
             <b-card-body class="invoice-padding p-0 m-0 pb-2 text-center">
-              <span class="font-weight-bold text-info m-0 p-0">
-                Productos de primera calidad, para un sabor inigualable.
-              </span>
               <hr class="invoice-spacing p-0 m-1">
               <span class="m-1 pt-0">
                 Av. Principal, Casa S/N Sector La Raya (La Raya Arriba) Barinas Zona Postal 5217
@@ -177,8 +135,7 @@
           </div>
         </b-card>
       </b-col>
-
-      <!-- Acciones (solo en pantalla) -->
+      <!-- Right Col: Card -->
       <b-col
         cols="12"
         md="4"
@@ -189,14 +146,7 @@
           class="position-fixed"
           style="width: 18%;"
         >
-          <div class="mb-1 text-center">
-            <b-badge
-              pill
-              :variant="invoiceData.status === 'Pendiente' ? 'warning' : 'success'"
-            >
-              {{ invoiceData.status }}
-            </b-badge>
-          </div>
+          <!-- Button: Print -->
           <b-button
             v-ripple.400="'rgba(186, 191, 199, 0.15)'"
             variant="outline-info"
@@ -206,16 +156,6 @@
           >
             Imprimir
           </b-button>
-          <b-button
-            v-if="invoiceData.status === 'Pendiente'"
-            v-ripple.400="'rgba(255, 255, 255, 0.15)'"
-            variant="outline-success"
-            class="mb-75"
-            block
-            @click="paidProducer(invoiceData.id)"
-          >
-            Pagar
-          </b-button>
         </b-card>
       </b-col>
     </b-row>
@@ -223,17 +163,17 @@
 </template>
 
 <script>
+
 import {
   BRow,
   BCol,
   BCard,
   BButton,
   BCardBody,
-  BBadge,
-  BTableLite,
   BCardText,
   BAlert,
   BLink,
+  VBToggle,
 } from 'bootstrap-vue'
 import Logo from '@core/layouts/components/Logo.vue'
 import Ripple from 'vue-ripple-directive'
@@ -241,36 +181,31 @@ import { mapState } from 'vuex'
 import { confirmAlert } from '@/helpers/utils'
 
 export default {
-  directives: { Ripple },
+  directives: {
+    Ripple,
+    'b-toggle': VBToggle,
+  },
   components: {
     BRow,
     BCol,
     BCard,
     BButton,
     BCardBody,
-    BTableLite,
     BCardText,
     BAlert,
     BLink,
-    BBadge,
     Logo,
   },
   data() {
     return {
-      invoiceData: null,
-      convercion: 0,
+      invoiceData: {},
+      employeeData: null,
       loaded: false,
-      itemFields: [
-        { key: 'cheese.name', label: 'Tipo de Queso' },
-        { key: 'kilograms', label: 'Kilos' },
-        { key: 'unit_price', label: 'Precio' },
-        { key: 'subtotal', label: 'Sub Total' },
-      ],
     }
   },
   computed: {
     ...mapState({
-      items: state => state.invoice.invoice,
+      items: state => state.payment.invoice,
       currency: state => state.currency.items,
     }),
     invoiceNumber() {
@@ -278,68 +213,37 @@ export default {
       if (!this.invoiceData || !this.invoiceData.id) return ''
       return String(this.invoiceData.id).padStart(8, '0')
     },
-    totalKilograms() {
-      return this.invoiceData.items.reduce(
-        (sum, item) => sum + parseFloat(item.kilograms),
-        0,
-      ).toFixed(2)
-    },
   },
   mounted() {
-    this.loadInvoice()
+    this.getEmployeeData()
   },
   methods: {
-    async loadInvoice() {
-      // Obtener tipo de cambio
-      await this.$store.dispatch('currency/get')
-      const dollar = this.currency.find(c => c.id === 1)
-      this.convercion = dollar ? parseFloat(dollar.price) : 1
-
-      // Obtener factura
-      await this.$store.dispatch('invoice/getInvoice', { id: this.$route.params.id })
-
-      const { dataNote } = this.items
-      if (dataNote) {
-        this.invoiceData = {
-          id: dataNote.id,
-          customer: dataNote.customer,
-          created_at: new Date(dataNote.created_at).toLocaleDateString('es-ES'),
-          amount: dataNote.amount,
-          totalBs: dataNote.total_bs,
-          tasa: dataNote.tasa,
-          status: dataNote.status,
-          items: dataNote.items.map(item => ({
-            ...item,
-            subtotal: item.subtotal,
-            kilograms: item.kilograms,
-            'cheese.name': item.cheese?.name || 'Sin nombre',
-          })),
-        }
-      }
-      this.loaded = true
-    },
-    formatDate(dateStr) {
-      const date = new Date(dateStr)
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
+    getEmployeeData() {
+      // Obtiene el id desde la ruta
+      const { id } = this.$route.params
+      this.$store.dispatch('employee/getById', id).then(data => {
+        this.employeeData = data
+        this.loaded = true
       })
     },
     printInvoice() {
       window.print()
     },
-    async paidProducer(id) {
-      const res = await confirmAlert('¿Está seguro de pagar esta nota?')
+    async paidCarrier(item) {
+      const res = await confirmAlert('¿Está seguro de Pagar este Rutero?')
       if (res.value) {
-        await this.$store.dispatch('invoice/paid', { id })
-        this.$swal('Pagado', 'La nota ha sido pagada', 'success')
-        await this.loadInvoice() // Recargar datos
+        const r = await this.$store.dispatch('payment/paid', {
+          id: item,
+        })
+        console.log(r)
+        this.$swal('Pagado', 'El Rutero ha sido Pagado', 'success')
+        this.getItems()
       }
     },
   },
 }
 </script>
+
 <style lang="scss" scoped>
     @import "~@core/scss/base/pages/app-invoice.scss";
 
@@ -443,7 +347,6 @@ export default {
               filter: grayscale(100%) contrast(110%);
               user-select: none;
             }
-            // El resto de estilos de impresión ya están definidos arriba
           }
 </style>
 
@@ -454,7 +357,7 @@ export default {
             max-width: none;
           }
           .invoice-preview-wrapper {
-            font-size: 14pt;
+            font-size: 15pt;
             size: letter;
           }
           .targetaDePie{

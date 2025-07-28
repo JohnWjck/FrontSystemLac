@@ -18,7 +18,7 @@
           >
             <b-input-group class="input-group-merge">
               <b-input-group-prepend is-text>
-                <feather-icon icon="TruckIcon" />
+                <feather-icon icon="UserIcon" />
               </b-input-group-prepend>
               <b-form-input
                 v-model="producer.name"
@@ -62,8 +62,8 @@
               <b-form-input
                 v-model="producer.dni"
                 required
-                maxlength="9"
-                pattern="[0-9]{9}"
+                maxlength="10"
+                pattern="[0-9-]{10}"
                 type="text"
                 placeholder="N° Rif"
               />
@@ -87,8 +87,8 @@
               <b-form-input
                 v-model="producer.dni"
                 required
-                maxlength="11"
-                pattern="^[VJE0-9-]{9}$"
+                maxlength="12"
+                pattern="^[VJE0-9-]{12}$"
                 type="text"
                 placeholder="N° Rif"
               />
@@ -155,7 +155,7 @@
                 required
                 type="text"
                 maxlength="12"
-                pattern="^[0-9-]{11}$"
+                pattern="^[0-9-]{12}$"
                 placeholder="N° telefono "
               />
             </b-input-group>

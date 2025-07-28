@@ -62,8 +62,8 @@
               <b-form-input
                 v-model="customer.dni"
                 required
-                maxlength="8"
-                pattern="[0-9]{8}"
+                maxlength="10"
+                pattern="[0-9-]{10}"
                 type="text"
                 placeholder="N° Cedula"
               />
@@ -87,8 +87,8 @@
               <b-form-input
                 v-model="customer.dni"
                 required
-                maxlength="10"
-                pattern="/^[VJE0-9-]{10}$/"
+                maxlength="12"
+                pattern="/^[VJE0-9-]{12}$/"
                 type="text"
                 placeholder="N° Cedula"
               />
@@ -128,9 +128,9 @@
               <b-form-input
                 v-model="customer.phone"
                 required
-                type="number"
+                type="text"
                 maxlength="7"
-                pattern="[0-9]{7}"
+                pattern="^[0-9]{7}"
                 placeholder="N° telefono "
               />
             </b-input-group>
@@ -154,7 +154,7 @@
                 v-model="customer.phone"
                 required
                 maxlength="12"
-                pattern="/^[0-9-]{11}$/"
+                pattern="^[0-9-]{12}$"
                 type="text"
                 placeholder="N° telefono "
               />

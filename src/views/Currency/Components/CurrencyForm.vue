@@ -32,7 +32,7 @@
               v-model="currency.price"
               required
               type="number"
-              step="0.1"
+              step="0.01"
             />
           </b-form-group>
         </b-col>

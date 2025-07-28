@@ -5,7 +5,7 @@
     >
       <h2>Bienvenidos!</h2>
       <b-card-text class="font-small-3">
-        Sistema de Gestión de Distribuidora e Inversiones Lácteos
+        Sistema de Gestión de Distribuidora e Inversiones Lácteos MV 2016, C.A.
       </b-card-text>
       <div class="mb-75 mt-2 pt-50">
         <b-button
@@ -29,7 +29,7 @@
             icon="TrendingDownIcon"
             class="mr-50"
           />
-          <span class="align-middle">Nueva Nota </span>
+          <span class="align-middle">Nueva Orden</span>
         </b-button>
       </div>
     </b-card>

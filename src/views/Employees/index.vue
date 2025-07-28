@@ -26,9 +26,9 @@
           class="text-center nombreTabla"
         >
           <h1 class="font-weight-bold text-info">
-            Ordenes de Ventas
+            Empleados
             <feather-icon
-              icon="TruckIcon"
+              icon="BriefcaseIcon"
               size="1.1x"
             />
           </h1>
@@ -39,7 +39,7 @@
           md="2"
         >
           <b-button
-            v-b-tooltip.hover.top="'Crear Nota'"
+            v-b-tooltip.hover.top="'Crear nuevo Usuario'"
             variant="info"
             class="float-right px-1"
             @click="crear"
@@ -61,50 +61,46 @@
             :items="items"
             :fields="fields"
             :filter="search"
-            :filter-function="filterTable"
+            :filter-included-fields="['name', 'dni', 'position', 'department']"
             :per-page="perPage"
             :current-page="currentPage"
             :table-class="'text-capitalize text-center'"
             hover
             striped
           >
-            <template #cell(id)="data">
-              <b-link
-                v-b-tooltip.hover.top="'Ver Nota'"
-                :to="{ name: 'invoice-customer', params: { id: data.item.id }}"
-                class="font-weight-bold text-info"
+            <template #cell(dni)="data">
+              <div
+                class="font-weight-bold"
+                :class="{
+                  'text-success': data.item.status === 'active',
+                  'text-warning': data.item.status === 'inactive'
+                }"
               >
-                #{{ String(data.value).padStart(8, '0') }}
-              </b-link>
-            </template>
-            <template #cell(kilograms)="data">
-              <div class="font-weight-bold">
-                {{ data.value }} Kg
+                Nº-{{ data.value }}
               </div>
             </template>
-            <template #cell(created_at)="data">
-              <div class="font-weight-bold text-success">
+            <template #cell(name)="data">
+              <div class="font-weight-bold text-dark">
+                {{ data.value }}
+              </div>
+            </template>
+            <template #cell(hire_date)="data">
+              <div class="font-weight-bold text-info">
                 {{ new Date(data.value).toLocaleDateString('es-ES') }}
               </div>
             </template>
             <template #cell(status)="data">
               <b-badge
                 pill
-                :variant="data.value === 'Pendiente' ? 'warning' : 'success'"
+                :variant="data.value === 'inactive' ? 'warning' : 'success'"
               >
-                {{ data.value }}
+                {{ data.value === 'inactive' ? 'Inactivo' : 'Activo' }}
               </b-badge>
-            </template>
-            <template #cell(amount)="data">
-              <div class="font-weight-bold">
-                $ {{ data.value }}
-              </div>
             </template>
             <template #cell(actions)="data">
               <b-dropdown
-                v-if="data.item.status === 'Pendiente'"
-                v-b-tooltip.hover.top="'Marcar como Pagado'"
-                size="lg"
+                v-b-tooltip.hover.top="'Acciones para el empleado'"
+                size="md"
                 variant="link"
                 toggle-class="text-decoration-none"
                 no-caret
@@ -116,8 +112,16 @@
                   />
                 </template>
                 <b-dropdown-item
-                  @click="paid(data.item)"
-                ><span class="align-middle">Marcar como Pagado</span>
+                  @click="edit(data.item)"
+                ><span class="align-middle">Ver Detalles</span>
+                </b-dropdown-item>
+                <b-dropdown-item
+                  :to="{ name: 'print-proof', params: { id: data.item.id }}"
+                ><span class="align-middle">Ver Constancia</span>
+                </b-dropdown-item>
+                <b-dropdown-item
+                  @click="deleteItem(data.item)"
+                ><span class="align-middle">Eliminar</span>
                 </b-dropdown-item>
               </b-dropdown>
             </template>
@@ -146,9 +150,9 @@
       backdrop
       shadow
     >
-      <FormNotes
+      <NewEmployee
         :item="item"
-        @saved="() => openSidebar(false)"
+        @saved="handleSaved"
       />
     </b-sidebar>
   </div>
@@ -170,14 +174,14 @@ import {
   BDropdown,
   BDropdownItem,
   BBadge,
-  BLink,
 } from 'bootstrap-vue'
 import { mapState } from 'vuex'
 import { confirmAlert } from '@/helpers/utils'
-import FormNotes from './components/FormNotes.vue'
+import NewEmployee from './components/NewEmployee.vue'
 
 export default {
   components: {
+
     BCard,
     BButton,
     BTable,
@@ -191,9 +195,9 @@ export default {
     BInputGroupPrepend,
     BDropdown,
     BDropdownItem,
-    FormNotes,
     BBadge,
-    BLink,
+    NewEmployee,
+
   },
   data() {
     return {
@@ -204,38 +208,39 @@ export default {
       currentPage: 1,
       fields: [
         {
-          key: 'id',
-          label: 'N°',
+          key: 'dni',
+          label: 'Cédula',
           sortable: true,
         },
         {
-          key: 'customer.name',
-          label: 'Cliente',
-          sortable: true,
+          key: 'name',
+          label: 'Nombre',
         },
-        // {
-        //   key: 'items.0.cheese.name',
-        //   label: 'Tipo de Queso',
-        //   sortable: true,
-        // },
-        // {
-        //   key: 'kilograms',
-        //   label: 'Kilogramos',
-        //   sortable: true,
-        // },
         {
-          key: 'amount',
-          label: 'Total',
+          key: 'last_name',
+          label: 'Apellido',
+        },
+        {
+          key: 'email',
+          label: 'Correo Electrónico',
+        },
+        {
+          key: 'position',
+          label: 'Cargo',
+        },
+        {
+          key: 'department',
+          label: 'Departamento',
           sortable: true,
         },
         {
           key: 'status',
-          label: 'Estatus',
+          label: 'Estado',
           sortable: true,
         },
         {
-          key: 'created_at',
-          label: 'Fecha',
+          key: 'hire_date',
+          label: 'Fecha de Contratación',
         },
         {
           key: 'actions',
@@ -246,7 +251,7 @@ export default {
   },
   computed: {
     ...mapState({
-      items: state => state.invoice.items,
+      items: state => state.employee.items,
     }),
     rows() {
       return this.items.length
@@ -258,51 +263,54 @@ export default {
   methods: {
     /// ////////////  Funcion Mostrar //////////////////
     getItems() {
-      this.$store.dispatch('invoice/get')
+      this.$store.dispatch('employee/get')
     },
-    filterTable(item, filter) {
-      const searchTerm = filter.toLowerCase()
-      return (
-        item.id.toString().includes(searchTerm)
-        || item.customer.name.toLowerCase().includes(searchTerm)
-      )
-    },
-    async paid(item) {
-      const res = await confirmAlert('¿Está seguro de Pagar esta Nota?')
-      if (res.value) {
-        await this.$store.dispatch('invoice/paid', {
-          id: item.id,
-        })
-        this.$swal('Generado', 'La Nota ha sido Pagada', 'success')
-        this.getItems()
-      }
+    edit(item) {
+      this.item = item
+      this.openSidebar()
     },
     crear() {
       this.item = null
       this.openSidebar()
     },
+    async deleteItem(item) {
+      const res = await confirmAlert('¿Está seguro de eliminar este registro?')
+      console.log(res)
+      if (res.value) {
+        const r = await this.$store.dispatch('employee/delete', {
+          id: item.id,
+        })
+        console.log(r)
+        this.$swal('Eliminado', 'El registro ha sido eliminado', 'success')
+        this.getItems()
+      }
+    },
     openSidebar(open = true) {
-      this.getItems()
       this.open = open
+    },
+    handleSaved() {
+      this.openSidebar(false)
+      this.getItems()
     },
   },
 }
 </script>
 
-<style>
-     @media (max-width: 768px) {
+  <style>
+  @media (max-width: 768px) {
 
-       .buscar:nth-child(1) {
-         order: 2;
-       }
-       .nombreTabla:nth-child(2) {
-         order: 1;
-       }
-       .accion:nth-child(3) {
-         order: 3;
-       }
-       .b-sidebar {
-         width: 80% !important;
-       }
-     }
-</style>
+    .buscar:nth-child(1) {
+      order: 2;
+    }
+
+    .nombreTabla:nth-child(2) {
+      order: 1;
+    }
+    .accion:nth-child(3) {
+      order: 3;
+    }
+    .b-sidebar {
+      width: 80% !important;
+    }
+  }
+  </style>

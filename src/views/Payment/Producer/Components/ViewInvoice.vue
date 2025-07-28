@@ -48,15 +48,24 @@
               <div>
                 <div class="logo-wrapper mb-1">
                   <logo />
-                  <h3 class="ml-5 text-info invoice-logo">
-                    DISTRIBUIDORA E INVERSIONES LACTEOS
-                  </h3>
+                  <div class="ml-5 text-center">
+                    <span
+                      class="d-block text-info ml-1"
+                      style="font-size:2rem; font-weight:500; letter-spacing:1px;"
+                    >DISTRIBUIDORA E INVERSIONES</span>
+                    <span
+                      class="d-block text-info ml-1"
+                      style="font-size:3rem; font-weight:700; letter-spacing:2px; text-shadow:0 2px 8px rgba(0,0,0,0.08);"
+                    >LACTEOS MV 2016, C.A.</span>
+                  </div>
                 </div>
-                <b-card-text class="mb-25 ml-4">
+                <b-card-text class="mb-25 ml-2">
                   <strong>Rif-J-41237828-7</strong>
                 </b-card-text>
-                <b-card-text class="mb-25 ml-3">
-                  <strong>Tlf-0416-196-70-38</strong>
+                <b-card-text class="mb-25 ml-1">
+                  <strong>Tlf-(0416)-195-70-38</strong>
+                  <br>
+                  <strong>Tlf-(0412)-673-47-76</strong>
                 </b-card-text>
               </div>
               <!-- Header: Right Content -->
@@ -127,6 +136,11 @@
                 {{ data.value }} Lts
               </b-card-text>
             </template>
+            <template #cell(price_per_liter)="data">
+              <b-card-text class="font-weight-bold mb-25">
+                ${{ data.value }}
+              </b-card-text>
+            </template>
             <template #cell(subTotal)="data">
               <b-card-text class="font-weight-bold mb-25">
                 ${{ (data.item.liters * liters).toFixed(2) }}
@@ -161,7 +175,7 @@
               </span>
               <hr class="invoice-spacing p-0 m-1">
               <span class="m-1 pt-0">
-                Sabaneta de Barinas Zona Postal 5201
+                Av. Principal, Casa S/N Sector La Raya (La Raya Arriba) Barinas Zona Postal 5217
               </span>
             </b-card-body>
           </div>
@@ -267,6 +281,11 @@ export default {
         {
           key: 'liters',
           label: 'Litros',
+          sortable: true,
+        },
+        {
+          key: 'price_per_liter',
+          label: 'Precio',
           sortable: true,
         },
         {

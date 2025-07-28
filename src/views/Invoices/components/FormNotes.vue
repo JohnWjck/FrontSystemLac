@@ -417,14 +417,33 @@ export default {
     async newCheese() {
       try {
         if (!this.isFormValid) return
+        const items = this.cheesesList.map(prod => {
+          const cheeseId = typeof prod.cheese_id === 'object' ? prod.cheese_id.id : prod.cheese_id
+          const cheese = this.cheeses.find(c => c.id === cheeseId)
+          let unitPrice = 0
+          if (cheese && cheese.price && !Number.isNaN(parseFloat(cheese.price))) {
+            unitPrice = parseFloat(cheese.price)
+          } else if (prod.amount && prod.kilograms) {
+            unitPrice = parseFloat(prod.amount) / parseFloat(prod.kilograms)
+          }
+          return {
+            cheese_id: cheeseId,
+            kilograms: prod.kilograms,
+            unitPrice: unitPrice ? unitPrice.toFixed(2) : '0.00',
+            subtotal: parseFloat(prod.amount),
+          }
+        })
+        // Obtener la tasa de cambio actual (Bs/USD)
+        const bsCurrency = this.currency.find(cur => cur.id === 1)
+        const tasa = bsCurrency ? parseFloat(bsCurrency.price) : 0
+        const totalBs = parseFloat(this.totalGeneralBs)
         const dataToSend = {
           customer_id: this.customerSelected.id,
           status: this.status,
-          products: this.cheesesList.map(prod => ({
-            cheese_id: prod.cheese_id.id,
-            kilograms: prod.kilograms,
-            amount: parseFloat(prod.amount),
-          })),
+          amount: parseFloat(this.totalGeneralUsd), // total en USD
+          totalBs, // total en Bs
+          tasa, // tasa de cambio usada
+          items,
         }
         const res = await this.$store.dispatch('invoice/save', dataToSend)
         this.customerSelected = null

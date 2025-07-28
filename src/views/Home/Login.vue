@@ -5,9 +5,6 @@
       <!-- Brand logo-->
       <b-link class="brand-logo">
         <vuexy-logo />
-        <h2 class="brand-text text-primary ml-1">
-          Lacteos Evelyn
-        </h2>
       </b-link>
       <!-- /Brand logo-->
 
@@ -53,10 +50,10 @@
             title-tag="h2"
             class="font-weight-bold mb-1"
           >
-            Bienvenido al Sistema de Lacteos Evelyn 👋
+            Bienvenido al Sistema DistriLact MV 👋
           </b-card-title>
           <b-card-text class="mb-2">
-            Sistema de Control de Lacteos.
+            DISTRIBUIDORA E INVERSIONES LACTEOS MV 2016, C.A.
           </b-card-text>
 
           <!-- form -->

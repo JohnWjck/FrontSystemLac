@@ -62,8 +62,8 @@
               <b-form-input
                 v-model="carrier.dni"
                 required
-                maxlength="8"
-                pattern="[0-9]{8}"
+                maxlength="10"
+                pattern="[0-9-]{10}"
                 type="text"
                 placeholder="N° Cedula"
               />
@@ -87,8 +87,8 @@
               <b-form-input
                 v-model="carrier.dni"
                 required
-                maxlength="11"
-                pattern="^[VJE0-9-]{9}$"
+                maxlength="12"
+                pattern="^[VJE0-9-]{12}$"
                 type="text"
                 placeholder="N° Cedula"
               />

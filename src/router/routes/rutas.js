@@ -20,4 +20,10 @@ export default [
     component: () => import('@/views/Invoices/components/ViewInvoice.vue'),
     beforeEnter: authGuard,
   },
+  {
+    path: '/Constancia-Trabajo/:id',
+    name: 'print-proof',
+    component: () => import('@/views/Employees/components/PrintProof.vue'),
+    beforeEnter: authGuard,
+  },
 ]

@@ -70,17 +70,12 @@
           >
             <template #cell(id)="data">
               <b-link
-                v-b-tooltip.hover.top="'Ver Nota'"
+                v-b-tooltip.hover.top="'Ver Orden de despacho'"
                 :to="{ name: 'invoice-customer', params: { id: data.item.id }}"
                 class="font-weight-bold text-info"
               >
                 #{{ data.value }}
               </b-link>
-            </template>
-            <template #cell(kilograms)="data">
-              <div class="font-weight-bold">
-                {{ data.value }} Kg
-              </div>
             </template>
             <template #cell(created_at)="data">
               <div class="font-weight-bold text-success">
@@ -211,16 +206,6 @@ export default {
         {
           key: 'customer.name',
           label: 'Cliente',
-          sortable: true,
-        },
-        {
-          key: 'cheese.name',
-          label: 'Tipo de Queso',
-          sortable: true,
-        },
-        {
-          key: 'kilograms',
-          label: 'Kilogramos',
           sortable: true,
         },
         {

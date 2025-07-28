@@ -50,7 +50,7 @@
         </b-col>
         <!-- litros -->
         <b-col
-          cols="12"
+          cols="6"
         >
           <b-form-group
             label="Litros:"
@@ -64,11 +64,32 @@
                 v-model="milkLoad.liters"
                 required
                 type="number"
-                step="0.1"
+                step="0.01"
                 placeholder="Litros"
               />
             </b-input-group>
           </b-form-group>
+        </b-col>
+        <!-- Precio por litro -->
+        <b-col
+          cols="6"
+          class="align-self-center text-right"
+        >
+          <span>Precio de la leche por litro:</span>
+          <b-badge
+            variant="info"
+            class="ml-1"
+          >
+            {{ pricePerLiter ? `$${pricePerLiter}` : 'N/A' }}
+          </b-badge>
+          <span>Precio por litro al Rutero:</span>
+          <b-badge
+            variant="info"
+            class="ml-1"
+          >
+            {{ pricePerCarrier ? `$${pricePerCarrier}` : 'N/A' }}
+          </b-badge>
+
         </b-col>
         <b-col cols="12">
           <div class="d-flex justify-content-center align-items-center">
@@ -97,6 +118,7 @@ import {
   BInputGroup,
   BInputGroupPrepend,
   VBToggle,
+  BBadge,
 } from 'bootstrap-vue'
 import { mapState } from 'vuex'
 import vSelect from 'vue-select'
@@ -107,6 +129,8 @@ const milkLoadData = {
   producer: null,
   carrier: null,
   liters: null,
+  price_per_liter: null,
+  price_per_carrier: null,
 }
 
 export default {
@@ -119,6 +143,7 @@ export default {
     BCol,
     BInputGroup,
     BInputGroupPrepend,
+    BBadge,
     vSelect,
   },
   directives: {
@@ -140,7 +165,16 @@ export default {
     ...mapState({
       producers: state => state.producer.items,
       carriers: state => state.carrier.items,
+      currencies: state => state.currency.items,
     }),
+    pricePerLiter() {
+      const item = this.currencies.find(c => c.id === 2)
+      return item ? item.price : null
+    },
+    pricePerCarrier() {
+      const item = this.currencies.find(c => c.id === 3)
+      return item ? item.price : null
+    },
   },
   watch: {
     item: {
@@ -161,6 +195,7 @@ export default {
     getItems() {
       this.$store.dispatch('carrier/get')
       this.$store.dispatch('producer/get')
+      this.$store.dispatch('currency/get')
     },
     async newMilkLoad() {
       try {
@@ -169,6 +204,8 @@ export default {
           producer_id: this.milkLoad.producer.id,
           carrier_id: this.milkLoad.carrier.id,
           liters: this.milkLoad.liters,
+          price_per_liter: this.pricePerLiter,
+          price_per_carrier: this.pricePerCarrier,
         }
         const res = await this.$store.dispatch('milkLoad/save', dataToSend)
         this.milkLoad = { ...milkLoadData }

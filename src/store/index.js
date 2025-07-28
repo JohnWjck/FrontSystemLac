@@ -17,6 +17,7 @@ import currency from './Currency'
 import cheese from './Cheese'
 import invoice from './Invoice'
 import accounting from './Accounting'
+import employee from './Employee'
 
 Vue.use(Vuex)
 
@@ -36,6 +37,7 @@ export default new Vuex.Store({
     currency,
     cheese,
     invoice,
+    employee,
     accounting,
   },
   strict: process.env.DEV,

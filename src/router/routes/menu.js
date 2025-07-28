@@ -15,6 +15,12 @@ export default [
     beforeEnter: authGuard,
   },
   {
+    path: '/Empleados',
+    name: 'employees',
+    component: () => import('@/views/Employees/index.vue'),
+    beforeEnter: authGuard,
+  },
+  {
     path: '/Proveedores',
     name: 'suppliers',
     component: () => import('@/views/Suppliers/index.vue'),

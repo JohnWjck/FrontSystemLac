@@ -10,7 +10,7 @@
             {{ item ? 'Editar Queso' : 'Nuevo Queso' }}
           </h2>
         </b-col>
-        <b-col cols="12">
+        <b-col :cols="item ? 6 : 12">
           <b-form-group
             label="Nombre del Queso"
             description="Ingresar el Nombre del Queso"
@@ -19,6 +19,25 @@
               v-model="cheese.name"
               required
               type="text"
+            />
+          </b-form-group>
+        </b-col>
+
+        <!-- Precio -->
+        <b-col cols="6">
+          <b-form-group
+            label="Variable de Precio"
+            description="Ingresar el Precio"
+          >
+            <v-select
+              v-model="cheese.currency_id"
+              :options="currencies"
+              required
+              item-value="id"
+              label="name"
+              :reduce="currency => currency.id"
+              :clearable="false"
+              placeholder="Selecciona una variable"
             />
           </b-form-group>
         </b-col>
@@ -33,24 +52,6 @@
               v-model="cheese.kilograms"
               required
               type="number"
-            />
-          </b-form-group>
-        </b-col>
-        <!-- Precio -->
-        <b-col :cols="item ? 12 : 6">
-          <b-form-group
-            label="Variable de Precio"
-            description="Ingresar el Precio"
-          >
-            <v-select
-              v-model="cheese.currency_id"
-              :options="currencies"
-              required
-              item-value="id"
-              label="name"
-              :reduce="currency => currency.id"
-              :clearable="false"
-              placeholder="Selecciona una variable"
             />
           </b-form-group>
         </b-col>
