@@ -39,7 +39,6 @@
             <v-select
               v-model="milkLoad.carrier"
               :options="carriers"
-              required
               item-value="id"
               label="name"
               :clearable="false"
@@ -71,7 +70,7 @@
           </b-form-group>
         </b-col>
         <!-- Precio por litro -->
-        <b-col
+        <!-- <b-col
           cols="6"
           class="align-self-center text-right"
         >
@@ -90,7 +89,7 @@
             {{ pricePerCarrier ? `$${pricePerCarrier}` : 'N/A' }}
           </b-badge>
 
-        </b-col>
+        </b-col> -->
         <b-col cols="12">
           <div class="d-flex justify-content-center align-items-center">
             <b-button
@@ -118,11 +117,12 @@ import {
   BInputGroup,
   BInputGroupPrepend,
   VBToggle,
-  BBadge,
+  // BBadge,
 } from 'bootstrap-vue'
 import { mapState } from 'vuex'
 import vSelect from 'vue-select'
 import Ripple from 'vue-ripple-directive'
+import { confirmAlert } from '@/helpers/utils'
 
 const milkLoadData = {
   id: null,
@@ -143,7 +143,7 @@ export default {
     BCol,
     BInputGroup,
     BInputGroupPrepend,
-    BBadge,
+    // BBadge,
     vSelect,
   },
   directives: {
@@ -202,14 +202,22 @@ export default {
         const dataToSend = {
           id: this.milkLoad.id,
           producer_id: this.milkLoad.producer.id,
-          carrier_id: this.milkLoad.carrier.id,
+          carrier_id: this.milkLoad.carrier?.id || null,
           liters: this.milkLoad.liters,
           price_per_liter: this.pricePerLiter,
           price_per_carrier: this.pricePerCarrier,
         }
-        const res = await this.$store.dispatch('milkLoad/save', dataToSend)
+        // Si no hay carrier_id, mostrar confirmación
+        if (!dataToSend.carrier_id) {
+          const res = await confirmAlert(
+            '¿Registrar sin Rutero?',
+            'No se ha seleccionado un Rutero. ¿Desea continuar y registrar la carga sin Rutero?',
+          )
+          if (!res.value) return
+        }
+        const result = await this.$store.dispatch('milkLoad/save', dataToSend)
         this.milkLoad = { ...milkLoadData }
-        this.$emit('saved', res)
+        this.$emit('saved', result)
       } catch (e) {
         console.log(e)
       }

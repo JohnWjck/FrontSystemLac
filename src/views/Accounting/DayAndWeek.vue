@@ -93,11 +93,14 @@ export default {
   methods: {
     updateChartData(days) {
       if (!Array.isArray(days)) return
+      const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
       const seriesData = days.map(day => parseFloat(day.liters))
       const categories = days.map(day => {
-        const date = new Date(day.date)
-        const dayName = date.toLocaleDateString('es-ES', { weekday: 'short' })
-        return `${dayName}, ${date.getDate()}`
+        // Parseo seguro de la fecha en formato YYYY-MM-DD
+        const [year, month, dayNum] = day.date.split('-').map(Number)
+        const date = new Date(year, month - 1, dayNum)
+        const dayName = diasSemana[date.getDay()]
+        return `${dayName.charAt(0).toUpperCase() + dayName.slice(1)}, ${dayNum}`
       })
 
       this.barChart.series = [{ data: seriesData }]

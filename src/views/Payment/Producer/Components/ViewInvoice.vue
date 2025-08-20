@@ -43,10 +43,10 @@
           class="invoice-preview-card"
         >
           <!-- Header -->
-          <b-card-body class="invoice-padding pb-0">
-            <div class="d-flex justify-content-between flex-md-row flex-column invoice-spacing mt-0">
+          <b-card-body class="pb-0">
+            <div class="d-flex justify-content-between flex-md-row flex-column mt-0">
               <div>
-                <div class="logo-wrapper mb-1">
+                <div class="logo-wrapper mb-25">
                   <logo />
                   <div class="ml-5 text-center">
                     <span
@@ -57,6 +57,9 @@
                       class="d-block text-info ml-1"
                       style="font-size:3rem; font-weight:700; letter-spacing:2px; text-shadow:0 2px 8px rgba(0,0,0,0.08);"
                     >LACTEOS MV 2016, C.A.</span>
+                    <p class="text-center text-info">
+                      Av. Principal, Casa S/N Sector La Raya (La Raya Arriba) Barinas Zona Postal 5217.
+                    </p>
                   </div>
                 </div>
                 <b-card-text class="mb-25 ml-2">
@@ -70,7 +73,7 @@
               </div>
               <!-- Header: Right Content -->
               <div class="mt-md-0 mt-2 float-right fechaIzquierda">
-                <h4 class="invoice-title">
+                <h4 class="invoice-title mb-25">
                   N°
                   <span class="invoice-number">#{{ invoiceNumber }}</span>
                 </h4>
@@ -79,56 +82,52 @@
                     Fecha:
                   </p>
                   <p class="invoice-date">
-                    {{ invoiceData.created_at }}
+                    {{ new Date(invoiceData.created_at).toLocaleDateString('es-ES') }}
                   </p>
                 </div>
               </div>
             </div>
+            <div style="margin-top: -7rem;">
+              <h3 class="text-center text-info">
+                <strong>Reporte Semanal del Productor</strong>
+              </h3>
+              <p class="text-center mb-0">
+                <strong>Del {{ new Date(invoiceData.start_week).toLocaleDateString('es-ES') }} Al {{ new Date(invoiceData.end_week).toLocaleDateString('es-ES') }}</strong>
+              </p>
+            </div>
           </b-card-body>
 
           <!-- Spacer -->
-          <h3 class="text-center text-info">
-            <strong>Reporte Semanal del Productor</strong>
-          </h3>
-          <p class="text-center mb-0">
-            <strong>Del {{ invoiceData.start_week }} Al {{ invoiceData.end_week }}</strong>
-          </p>
-          <hr class="invoice-spacing">
+          <hr class="invoice-spacing mb-25 mt-3">
 
           <!-- Invoice Client & Payment Details -->
-          <b-card-body
+          <p
             v-if="invoiceData.id && invoiceData.producer && invoiceData.producer[0]"
-            class="invoice-padding pt-0"
+            class="text-center p-0 m-0"
           >
-            <b-card class="mb-1 bg-light border-info align-items-center">
-              <!-- Eliminado <b-card-title> porque no existe en Bootstrap-Vue -->
-              <b-row class="align-items-center">
-                <b-col>
-                  <strong>Productor:</strong>
-                  {{ invoiceData.producer[0].dni }} -
-                  {{ invoiceData.producer[0].name }}
-                  <strong>TLF:</strong>  {{ invoiceData.producer[0].phone }}
-                  <strong>Finca:</strong> {{ invoiceData.producer[0].farm }}
-                  <strong>Dirección:</strong> {{ invoiceData.producer[0].address }}
-                </b-col>
-              </b-row>
-            </b-card>
-          </b-card-body>
+            <strong>Productor:</strong>
+            {{ invoiceData.producer[0].dni }} -
+            {{ invoiceData.producer[0].name }}
+            <strong>TLF:</strong> {{ invoiceData.producer[0].phone }}
+            <strong>Finca:</strong> {{ invoiceData.producer[0].farm }}
+            <strong>Dirección:</strong> {{ invoiceData.producer[0].address }}
+          </p>
 
           <!-- Invoice Description: Table -->
-          <b-table-lite
+          <b-table
             v-if="loaded"
+            small
             responsive
             :items="invoiceData.milk_loads"
             :fields="fields"
-            class="mb-5 text-center"
+            class="table-sm text-center border-0"
           >
             <template #cell(created_at)="data">
               <b-card-text class="text-nowrap mb-25">
-                {{ new Date(data.value).toLocaleDateString('es-ES', { weekday: 'long' }) }}
+                {{ formatDate(data.value, true).split(',')[0] }}
               </b-card-text>
               <b-card-text class="font-weight-bold mb-25">
-                {{ new Date(data.value).toLocaleDateString('es-ES') }}
+                {{ formatDate(data.value, false) }}
               </b-card-text>
             </template>
             <template #cell(liters)="data">
@@ -146,39 +145,26 @@
                 ${{ (data.item.liters * data.item.price_per_liter).toFixed(2) }}
               </b-card-text>
             </template>
-          </b-table-lite>
+          </b-table>
           <b-col
             cols="12"
             xl="12"
             class="float-right"
           >
             <h5
-              class="p-0 float-right"
+              class="p-0 ml-2 float-left text-info"
             >
               Total en Litros: {{ invoiceData.liters }}Lts
-            </h5><br><br>
+            </h5>
             <h4
               v-b-tooltip.hover.top="'Bs '+(invoiceData.amount * convercion).toFixed(2)"
-              class="p-0 float-right text-success"
+              class="p-0 float-right text-info"
             >
-              {{ invoiceData.status === 'Pagado' ? 'Total Pagado' : 'Total a Pagar' }}  ${{ invoiceData.amount }}
+              {{ invoiceData.status === 'Pagado' ? ' Total Pagado' : ' Total a Pagar' }}  ${{ invoiceData.amount }}
             </h4>
-          </b-col>
-          <div class="mb-5" />
-          <!-- Spacer -->
-          <div class="targetaDePie">
             <hr class="invoice-spacing">
-            <!-- Note -->
-            <b-card-body class="invoice-padding p-0 m-0 pb-2 text-center">
-              <span class="font-weight-bold text-info m-0 p-0">
-                Productos de primera calidad, para un sabor inigualable.
-              </span>
-              <hr class="invoice-spacing p-0 m-1">
-              <span class="m-1 pt-0">
-                Av. Principal, Casa S/N Sector La Raya (La Raya Arriba) Barinas Zona Postal 5217
-              </span>
-            </b-card-body>
-          </div>
+          </b-col>
+          <!-- Spacer -->
         </b-card>
       </b-col>
       <!-- Right Col: Card -->
@@ -236,7 +222,7 @@ import {
   BButton,
   BCardBody,
   BBadge,
-  BTableLite,
+  BTable,
   BCardText,
   BAlert,
   BLink,
@@ -259,7 +245,7 @@ export default {
     BCard,
     BButton,
     BCardBody,
-    BTableLite,
+    BTable,
     BCardText,
     BAlert,
     BLink,
@@ -374,15 +360,27 @@ export default {
             payment,
             liters,
             producer,
-            created_at: new Date(created_at).toLocaleDateString('es-ES'),
-            start_week: new Date(start_week).toLocaleDateString('es-ES'),
-            end_week: new Date(end_week).toLocaleDateString('es-ES'),
+            created_at,
+            start_week,
+            end_week,
             amount,
             status,
           }
         }
         this.loaded = true
       })
+    },
+    formatDate(dateString, showWeekday = true) {
+      const date = new Date(dateString)
+      if (!date) return ''
+      const options = showWeekday
+        ? {
+          weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC',
+        }
+        : {
+          year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC',
+        }
+      return date.toLocaleDateString('es-ES', options)
     },
     printInvoice() {
       window.print()
@@ -441,7 +439,7 @@ export default {
             }
             .content.app-content {
               margin-left: 0;
-              padding-top: 2rem !important;
+              padding-top:  1rem !important;
             }
             footer.footer {
               display: none;
@@ -453,6 +451,17 @@ export default {
             .customizer-toggle {
               display: none !important;
             }
+              // Hacer la tabla y sus celdas completamente transparentes al imprimir
+              .invoice-preview-wrapper .table,
+              .invoice-preview-wrapper .table th,
+              .invoice-preview-wrapper .table td,
+              .invoice-preview-wrapper .b-table,
+              .invoice-preview-wrapper .b-table th,
+              .invoice-preview-wrapper .b-table td {
+                background: transparent !important;
+                background-color: transparent !important;
+                box-shadow: none !important;
+              }
 
             // Invoice Specific Styles
             .invoice-preview-wrapper {
@@ -487,23 +496,25 @@ export default {
             }
             // Watermark background logo styles para impresión
             .invoice-watermark-bg {
-              position: fixed !important;
-              top: 0 !important;
-              left: 0 !important;
-              width: 100vw !important;
-              height: 100vh !important;
-              display: flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              opacity: 0.08 !important;
-              z-index: 0 !important;
-              pointer-events: none !important;
+                  position: absolute !important;
+                  top: 0 !important;
+                  left: 0 !important;
+                  width: 100vw !important;
+                  height: auto !important;
+                  display: flex !important;
+                  align-items: flex-start !important;
+                  justify-content: center !important;
+                  opacity: 0.08 !important;
+                  z-index: 0 !important;
+                  pointer-events: none !important;
             }
             .invoice-watermark-bg img {
-              max-width: 90vw !important;
-              max-height: 95vh !important;
-              filter: grayscale(100%) contrast(110%);
-              user-select: none;
+                  max-width: 70vw !important;
+                  max-height: 75vh !important;
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+                filter: grayscale(100%) contrast(150%);
+                user-select: none;
             }
             // El resto de estilos de impresión ya están definidos arriba
           }
@@ -511,18 +522,14 @@ export default {
 
 <style scoped>
         @media print {
-          @page {
-            width: 100%;
-            max-width: none;
-          }
+            @page {
+              width: 100%;
+              max-width: none;
+              margin-top: -1.5%;
+            }
           .invoice-preview-wrapper {
-            font-size: 14pt;
+            font-size: 9pt;
             size: letter;
-          }
-          .targetaDePie{
-            position: fixed;
-            bottom: 0;
-            width: 100%;
           }
           .fechaIzquierda {
            position: absolute;

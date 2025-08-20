@@ -120,6 +120,10 @@
                 ><span class="align-middle">Ver Constancia</span>
                 </b-dropdown-item>
                 <b-dropdown-item
+                  :to="{ name: 'acceptance-letter', params: { id: data.item.id }}"
+                ><span class="align-middle">Carta Aceptación</span>
+                </b-dropdown-item>
+                <b-dropdown-item
                   @click="deleteItem(data.item)"
                 ><span class="align-middle">Eliminar</span>
                 </b-dropdown-item>

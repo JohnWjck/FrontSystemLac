@@ -26,4 +26,10 @@ export default [
     component: () => import('@/views/Employees/components/PrintProof.vue'),
     beforeEnter: authGuard,
   },
+  {
+    path: '/Carta-Aceptacion/:id',
+    name: 'acceptance-letter',
+    component: () => import('@/views/Employees/components/AcceptanceLetter.vue'),
+    beforeEnter: authGuard,
+  },
 ]
