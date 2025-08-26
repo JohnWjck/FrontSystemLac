@@ -137,12 +137,12 @@
             </template>
             <template #cell(price_per_liter)="data">
               <b-card-text class="font-weight-bold mb-25">
-                ${{ data.value }}
+                ${{ (Number(pricePerLiterInput) > 0 ? Number(pricePerLiterInput) : (Number(data.item.price_per_liter) || 0)).toFixed(2) }}
               </b-card-text>
             </template>
             <template #cell(subTotal)="data">
               <b-card-text class="font-weight-bold mb-25">
-                ${{ (data.item.liters * data.item.price_per_liter).toFixed(2) }}
+                ${{ ((Number(pricePerLiterInput) > 0 ? Number(pricePerLiterInput) : (Number(data.item.price_per_liter) || 0)) * (Number(data.item.liters) || 0)).toFixed(2) }}
               </b-card-text>
             </template>
           </b-table>
@@ -151,17 +151,17 @@
             xl="12"
             class="float-right"
           >
-            <h5
-              class="p-0 ml-2 float-left text-info"
-            >
+            <h5 class="p-0 ml-2 float-left text-info">
               Total en Litros: {{ invoiceData.liters }}Lts
             </h5>
-            <h4
-              v-b-tooltip.hover.top="'Bs '+(invoiceData.amount * convercion).toFixed(2)"
-              class="p-0 float-right text-info"
+            <div
+              class="float-right text-info"
+              style="text-align:right;"
             >
-              {{ invoiceData.status === 'Pagado' ? ' Total Pagado' : ' Total a Pagar' }}  ${{ invoiceData.amount }}
-            </h4>
+              <h4 class="p-0 mb-1 text-info">
+                {{ invoiceData.status === 'Pagado' ? ' Total Pagado' : ' Total a Pagar' }} Bs {{ (invoiceData.status === 'Pagado' ? (Number(invoiceData.amount_bss)).toFixed(2) : recalculatedAmountBs.toFixed(2)) }} ~ ${{ (invoiceData.status === 'Pagado' ? Number(invoiceData.amount).toFixed(2) : recalculatedAmount.toFixed(2)) }}
+              </h4>
+            </div>
             <hr class="invoice-spacing">
           </b-col>
           <!-- Spacer -->
@@ -188,6 +188,7 @@
             </b-badge>
           </div>
           <b-button
+            v-if="invoiceData.status !== 'Pendiente'"
             v-ripple.400="'rgba(186, 191, 199, 0.15)'"
             variant="outline-info"
             class="mb-75"
@@ -196,6 +197,20 @@
           >
             Imprimir
           </b-button>
+          <!-- Input manual para price per liter -->
+          <div
+            v-if="invoiceData.status !== 'Pagado'"
+            class="mb-1"
+          >
+            <label class="d-block text-center mb-50">Precio por Litro </label>
+            <b-form-input
+              v-model.number="pricePerLiterInput"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+            />
+          </div>
           <!-- Button: Send Invoice -->
           <b-button
             v-if="invoiceData.status === 'Pendiente'"
@@ -226,6 +241,7 @@ import {
   BCardText,
   BAlert,
   BLink,
+  BFormInput,
   VBToggle,
 } from 'bootstrap-vue'
 import Logo from '@core/layouts/components/Logo.vue'
@@ -250,6 +266,7 @@ export default {
     BAlert,
     BLink,
     BBadge,
+    BFormInput,
     Logo,
   },
   data() {
@@ -258,6 +275,7 @@ export default {
       convercion: null,
       liters: null,
       totalIva: '0.00',
+      pricePerLiterInput: 0.00,
       fields: [
         {
           key: 'created_at',
@@ -310,6 +328,28 @@ export default {
       items: state => state.payment.invoice,
       currency: state => state.currency.items,
     }),
+    // Nuevo total recalculado usando el input manual
+    recalculatedAmount() {
+      if (!this.invoiceData || !this.invoiceData.milk_loads) return 0
+      // Si el usuario ingresó un precio manual (>0), usarlo para todos
+      const manualPrice = parseFloat(this.pricePerLiterInput)
+      if (manualPrice && manualPrice > 0) {
+        return this.invoiceData.milk_loads.reduce((sum, ml) => {
+          const liters = parseFloat(ml.liters) || 0
+          return sum + liters * manualPrice
+        }, 0)
+      }
+      // Si no hay precio manual, sumamos usando el price_per_liter por cada milk_load (útil para facturas Pagadas)
+      return this.invoiceData.milk_loads.reduce((sum, ml) => {
+        const liters = parseFloat(ml.liters) || 0
+        const p = parseFloat(ml.price_per_liter) || 0
+        return sum + liters * p
+      }, 0)
+    },
+    recalculatedAmountBs() {
+      const conv = parseFloat(this.convercion) || 0
+      return this.recalculatedAmount * conv
+    },
     invoiceNumber() {
       // Serializa el id a 8 dígitos con ceros a la izquierda
       if (!this.invoiceData || !this.invoiceData.id) return ''
@@ -350,6 +390,7 @@ export default {
           const { start_week } = payment
           const { end_week } = payment
           const { amount } = payment
+          const { amount_bss } = payment
           const { status } = payment
 
           // Asigna los valores a las variables
@@ -364,7 +405,15 @@ export default {
             start_week,
             end_week,
             amount,
+            amount_bss,
             status,
+          }
+          // Inicializa el input manual con el price_per_liter que venga del backend
+          // Si el pago ya está Pagado, forzamos a tomar el valor guardado
+          if (payment && payment.price_per_liter) {
+            this.pricePerLiterInput = parseFloat(payment.price_per_liter)
+          } else {
+            this.pricePerLiterInput = 0
           }
         }
         this.loaded = true
@@ -388,9 +437,14 @@ export default {
     async paidProducer(item) {
       const res = await confirmAlert('¿Está seguro de Pagar este Productor?')
       if (res.value) {
-        const r = await this.$store.dispatch('payment/paid', {
+        // Enviar los nuevos valores calculados al action del store
+        const payload = {
           id: item,
-        })
+          amount: Number(this.recalculatedAmount.toFixed(2)),
+          amount_bss: Number(this.recalculatedAmountBs.toFixed(2)),
+          price_per_liter: Number(parseFloat(this.pricePerLiterInput) || 0),
+        }
+        const r = await this.$store.dispatch('payment/paid', payload)
         console.log(r)
         this.$swal('Pagado', 'El Productor ha sido Pagado', 'success')
         this.getItems()

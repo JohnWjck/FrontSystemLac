@@ -78,6 +78,11 @@
                 $ {{ data.value }}
               </div>
             </template>
+            <template #cell(amount_bss)="data">
+              <div class="font-weight-bold text-success">
+                Bs {{ data.value }}
+              </div>
+            </template>
             <template #cell(start_week)="data">
               <div class="font-weight-bold text-warning">
                 {{ new Date(data.value).toLocaleDateString('es-ES') }}
@@ -181,7 +186,11 @@ export default {
         },
         {
           key: 'amount',
-          label: 'Total',
+          label: 'Total $',
+        },
+        {
+          key: 'amount_bss',
+          label: 'Total Bs',
         },
         {
           key: 'start_week',

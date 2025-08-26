@@ -167,14 +167,14 @@ export default {
       carriers: state => state.carrier.items,
       currencies: state => state.currency.items,
     }),
-    pricePerLiter() {
-      const item = this.currencies.find(c => c.id === 2)
-      return item ? item.price : null
-    },
-    pricePerCarrier() {
-      const item = this.currencies.find(c => c.id === 3)
-      return item ? item.price : null
-    },
+    // pricePerLiter() {
+    //   const item = this.currencies.find(c => c.id === 2)
+    //   return item ? item.price : null
+    // },
+    // pricePerCarrier() {
+    //   const item = this.currencies.find(c => c.id === 3)
+    //   return item ? item.price : null
+    // },
   },
   watch: {
     item: {
@@ -201,17 +201,17 @@ export default {
       try {
         const dataToSend = {
           id: this.milkLoad.id,
-          producer_id: this.milkLoad.producer.id,
-          carrier_id: this.milkLoad.carrier?.id || null,
+          producer_id: this.milkLoad.producer?.id || null,
+          carrier_id: this.milkLoad.carrier.id,
           liters: this.milkLoad.liters,
-          price_per_liter: this.pricePerLiter,
-          price_per_carrier: this.pricePerCarrier,
+          price_per_liter: 0.00,
+          price_per_carrier: 0.00,
         }
-        // Si no hay carrier_id, mostrar confirmación
-        if (!dataToSend.carrier_id) {
+        // Si no hay producer_id, mostrar confirmación
+        if (!dataToSend.producer_id) {
           const res = await confirmAlert(
-            '¿Registrar sin Rutero?',
-            'No se ha seleccionado un Rutero. ¿Desea continuar y registrar la carga sin Rutero?',
+            '¿Registrar sin Productor?',
+            'No se ha seleccionado un Productor. ¿Desea continuar y registrar la carga sin Productor?',
           )
           if (!res.value) return
         }

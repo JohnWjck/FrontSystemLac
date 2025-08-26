@@ -139,12 +139,12 @@
             </template>
             <template #cell(price_per_carrier)="data">
               <b-card-text class="font-weight-bold mb-25">
-                ${{ data.value }}
+                ${{ (Number(pricePerCarrierInput) > 0 ? Number(pricePerCarrierInput) : (Number(data.item.price_per_carrier) || 0)).toFixed(2) }}
               </b-card-text>
             </template>
             <template #cell(subTotal)="data">
               <b-card-text class="font-weight-bold mb-25">
-                ${{ (data.item.liters * data.item.price_per_carrier).toFixed(2) }}
+                ${{ ((Number(pricePerCarrierInput) > 0 ? Number(pricePerCarrierInput) : (Number(data.item.price_per_carrier) || 0)) * (Number(data.item.liters) || 0)).toFixed(2) }}
               </b-card-text>
             </template>
           </b-table>
@@ -156,12 +156,16 @@
             <h5 class="p-0 ml-2 float-left text-info">
               Total en Litros: {{ invoiceData.liters }}Lts
             </h5>
-            <h4
-              v-b-tooltip.hover.top="'Bs '+(invoiceData.amount * convercion).toFixed(2)"
-              class="p-0 float-right text-info"
+            <div
+              class="float-right text-info"
+              style="text-align:right;"
             >
-              {{ invoiceData.status === 'Pagado' ? ' Total Pagado' : ' Total a Pagar' }}  ${{ invoiceData.amount }}
-            </h4>
+              <h4 class="p-0 mb-1 text-info">
+                {{ invoiceData.status === 'Pagado' ? ' Total Pagado' : ' Total a Pagar' }}
+                Bs {{ invoiceData.status === 'Pagado' ? (invoiceData.amount_bss ? invoiceData.amount_bss : '0.00') : recalculatedAmountBs.toFixed(2) }}
+                ~ ${{ invoiceData.status === 'Pagado' ? (invoiceData.amount ? invoiceData.amount : '0.00') : recalculatedAmount.toFixed(2) }}
+              </h4>
+            </div>
             <hr class="invoice-spacing">
           </b-col>
           <!-- Spacer -->
@@ -188,6 +192,7 @@
             </b-badge>
           </div>
           <b-button
+            v-if="invoiceData.status !== 'Pendiente'"
             v-ripple.400="'rgba(186, 191, 199, 0.15)'"
             variant="outline-info"
             class="mb-75"
@@ -196,6 +201,20 @@
           >
             Imprimir
           </b-button>
+          <!-- Input manual para price per carrier -->
+          <div
+            v-if="invoiceData.status !== 'Pagado'"
+            class="mb-1"
+          >
+            <label class="d-block text-center mb-50">Precio por Rutero </label>
+            <b-form-input
+              v-model.number="pricePerCarrierInput"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+            />
+          </div>
           <!-- Button: Send Invoice -->
           <b-button
             v-if="invoiceData.status === 'Pendiente'"
@@ -227,6 +246,7 @@ import {
   BAlert,
   BLink,
   VBToggle,
+  BFormInput,
 } from 'bootstrap-vue'
 import Logo from '@core/layouts/components/Logo.vue'
 import Ripple from 'vue-ripple-directive'
@@ -250,6 +270,7 @@ export default {
     BAlert,
     BLink,
     BBadge,
+    BFormInput,
     Logo,
   },
   data() {
@@ -258,6 +279,7 @@ export default {
       convercion: null,
       liters: null,
       totalIva: '0.00',
+      pricePerCarrierInput: 0.00,
       fields: [
         {
           key: 'created_at',
@@ -310,6 +332,28 @@ export default {
       items: state => state.payment.invoice,
       currency: state => state.currency.items,
     }),
+    // Nuevo total recalculado usando el input manual
+    recalculatedAmount() {
+      if (!this.invoiceData || !this.invoiceData.milk_loads) return 0
+      // Si el usuario ingresó un precio manual (>0), usarlo para todos
+      const manualPrice = parseFloat(this.pricePerCarrierInput)
+      if (manualPrice && manualPrice > 0) {
+        return this.invoiceData.milk_loads.reduce((sum, ml) => {
+          const liters = parseFloat(ml.liters) || 0
+          return sum + liters * manualPrice
+        }, 0)
+      }
+      // Si no hay precio manual, sumamos usando el price_per_carrier por cada milk_load
+      return this.invoiceData.milk_loads.reduce((sum, ml) => {
+        const liters = parseFloat(ml.liters) || 0
+        const p = parseFloat(ml.price_per_carrier) || 0
+        return sum + liters * p
+      }, 0)
+    },
+    recalculatedAmountBs() {
+      const conv = parseFloat(this.convercion) || 0
+      return this.recalculatedAmount * conv
+    },
     invoiceNumber() {
       // Serializa el id a 8 dígitos con ceros a la izquierda
       if (!this.invoiceData || !this.invoiceData.id) return ''
@@ -350,6 +394,7 @@ export default {
           const { start_week } = payment
           const { end_week } = payment
           const { amount } = payment
+          const { amount_bss } = payment
           const { status } = payment
 
           // Asigna los valores a las variables
@@ -364,7 +409,14 @@ export default {
             start_week,
             end_week,
             amount,
+            amount_bss,
             status,
+          }
+          // Inicializa el input manual con el price_per_carrier que venga del backend
+          if (payment && payment.price_per_carrier) {
+            this.pricePerCarrierInput = parseFloat(payment.price_per_carrier)
+          } else {
+            this.pricePerCarrierInput = 0
           }
         }
         this.loaded = true
@@ -388,9 +440,14 @@ export default {
     async paidCarrier(item) {
       const res = await confirmAlert('¿Está seguro de Pagar este Rutero?')
       if (res.value) {
-        const r = await this.$store.dispatch('payment/paid', {
+        // Enviar los nuevos valores calculados al action del store
+        const payload = {
           id: item,
-        })
+          amount: Number(this.recalculatedAmount.toFixed(2)),
+          amount_bss: Number(this.recalculatedAmountBs.toFixed(2)),
+          price_per_carrier: Number(parseFloat(this.pricePerCarrierInput) || 0),
+        }
+        const r = await this.$store.dispatch('payment/paid', payload)
         console.log(r)
         this.$swal('Pagado', 'El Rutero ha sido Pagado', 'success')
         this.getItems()

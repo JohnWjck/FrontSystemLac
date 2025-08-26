@@ -53,9 +53,14 @@ export default {
     async paid({ commit, state }, payload) {
       try {
         console.log(payload)
-        const { data: response } = await API.post('payments/approve', {
+        // Enviar id junto con los nuevos cálculos desde el frontend
+        const body = {
           id: payload.id,
-        })
+          amount: payload.amount,
+          amount_bss: payload.amount_bss,
+          price_per_liter: payload.price_per_liter,
+        }
+        const { data: response } = await API.post('payments/approve', body)
         if (response.success) {
           const items = state.items.filter(item => item.id !== payload.id)
           commit('SET_ITEMS', items)
