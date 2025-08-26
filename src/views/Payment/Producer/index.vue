@@ -106,7 +106,7 @@
                 {{ data.value }}
               </b-badge>
             </template>
-            <template #cell(actions)="data">
+            <!-- <template #cell(actions)="data">
               <b-dropdown
                 v-b-tooltip.hover.top="'Pagar'"
                 size="lg"
@@ -124,12 +124,12 @@
                   @click="paidProducer(data.item)"
                 ><span class="align-middle">Pagar</span>
                 </b-dropdown-item>
-                <!-- <b-dropdown-item
+                <b-dropdown-item
                     @click="deleteItem(data.item)"
                   ><span class="align-middle">Eliminar</span>
-                  </b-dropdown-item> -->
+                  </b-dropdown-item>
               </b-dropdown>
-            </template>
+            </template> -->
           </b-table>
         </b-col>
       </b-row>
@@ -171,8 +171,8 @@ import {
   BPagination,
   BInputGroup,
   BInputGroupPrepend,
-  BDropdown,
-  BDropdownItem,
+  // BDropdown,
+  // BDropdownItem,
   BBadge,
   BLink,
 } from 'bootstrap-vue'
@@ -193,8 +193,8 @@ export default {
     BPagination,
     BInputGroup,
     BInputGroupPrepend,
-    BDropdown,
-    BDropdownItem,
+    // BDropdown,
+    // BDropdownItem,
     BBadge,
     BLink,
   },
