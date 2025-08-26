@@ -59,6 +59,7 @@ export default {
           amount: payload.amount,
           amount_bss: payload.amount_bss,
           price_per_liter: payload.price_per_liter,
+          price_per_carrier: payload.price_per_carrier,
         }
         const { data: response } = await API.post('payments/approve', body)
         if (response.success) {
